@@ -71,20 +71,17 @@ export function ReportsPanel({ prefillSegmentId }: ReportsPanelProps) {
   return (
     <section className="card panel" aria-labelledby="reports-heading">
       <div className="panel-heading compact">
-        <div>
-          <p className="eyebrow">SERVICE REPORTS</p>
-          <h2 id="reports-heading">Recent observations</h2>
-        </div>
+        <h2 id="reports-heading">Recent observations</h2>
       </div>
 
       <ul className="report-list">
         {recentReports.length === 0 && <li className="empty-note">No active reports right now.</li>}
         {recentReports.map((report) => (
           <li key={report.id} className="report-list-item">
-            <span className="chip">{report.category.replace("_", " ")}</span>
+            <span className="report-category">{report.category.replace("_", " ")}</span>
             <p>{report.text}</p>
             <div className="report-list-meta">
-              <span className={`badge ${report.source === "user" ? "badge-amber" : "badge-teal"}`}>{report.source}</span>
+              <span className="report-source">{report.source === "user" ? "User-submitted" : "Service"}</span>
               <span className="route-card-freshness">
                 Observed {formatRelative(report.observedAt, new Date(now))} · Expires {formatRelative(report.expiresAt, new Date(now))}
               </span>
@@ -94,7 +91,7 @@ export function ReportsPanel({ prefillSegmentId }: ReportsPanelProps) {
       </ul>
 
       <div className="report-composer">
-        <p className="eyebrow">FILE A REPORT</p>
+        <h3>File a report</h3>
 
         <label>
           <span>Segment</span>
@@ -144,12 +141,12 @@ export function ReportsPanel({ prefillSegmentId }: ReportsPanelProps) {
 
       {drafts.length > 0 && (
         <div className="draft-list">
-          <p className="eyebrow">UNPUBLISHED DRAFTS</p>
+          <h3>Unpublished drafts</h3>
           <ul>
             {drafts.map((draft) => (
               <li key={draft.id} className="draft-list-item">
                 <div>
-                  <span className="chip">{draft.category.replace("_", " ")}</span>
+                  <span className="report-category">{draft.category.replace("_", " ")}</span>
                   <p>{draft.text}</p>
                 </div>
                 <div className="draft-list-actions">

@@ -16,9 +16,11 @@
   "dependencies": {
     "@react-three/drei": "^10.7.6",
     "@react-three/fiber": "^9.3.0",
+    "gsap": "^3.15.0",
     "next": "^15.5.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "reicon-react": "^1.2.3",
     "three": "^0.179.1",
     "zod": "^3.25.76",
     "zustand": "^5.0.15"

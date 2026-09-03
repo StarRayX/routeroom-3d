@@ -2,53 +2,55 @@
  * Shared colour constants for the 3D scene (SceneContent) and the 2D SVG
  * fallback (RouteMap2D), so both renderers read as the same product.
  *
- * Soft pastel low-poly isometric palette: cream/sand ground, muted greens,
- * dusty blue water, warm gray buildings.
+ * Civic model-table palette: near-white ground, mineral buildings, quiet
+ * geographic color, and one high-signal route accent.
  */
 
 import type { LandmarkKind } from "@/lib/types";
 
 export const PALETTE = {
-  background: "#e9e4d8",
-  fog: "#e9e4d8",
+  background: "#f3f1eb",
+  fog: "#f3f1eb",
 
-  ground: "#ddd3ba",
-  groundEdge: "#cfc3a1",
+  ground: "#eeece5",
+  groundEdge: "#d7d5ce",
 
-  water: "#7fa8b0",
-  waterDeep: "#6d97a0",
+  water: "#dce9eb",
+  waterDeep: "#c5dade",
 
-  park: "#8aab7c",
-  parkTrunk: "#7c6a4e",
-  parkFoliage: "#6f9a6a",
+  park: "#dde6da",
+  parkTrunk: "#9a8e79",
+  parkFoliage: "#b8cab4",
 
-  road: "#7d766a",
-  roadLine: "#d8d0b8",
+  road: "#d4d3ce",
+  roadLine: "#f8f7f3",
 
-  plaza: "#e2d8c0",
+  plaza: "#e8e6df",
 
-  buildingDefault: "#b3a68e",
-  roofDefault: "#8f7f68",
+  buildingDefault: "#d8d6cf",
+  roofDefault: "#c4c1b8",
 
-  candidateRoute: "#9aa39f",
-  focusHalo: "#fff5dc",
-  reportMarker: "#d9603b",
-  disruption: "#e0a23a",
-  transferMarker: "#4f5d5a",
-  stairsMarker: "#d9a441",
+  primaryRoute: "#e75a3c",
+  backupRoute: "#354345",
+  candidateRoute: "#8f9796",
+  focusHalo: "#fff0e8",
+  reportMarker: "#e75a3c",
+  disruption: "#b27622",
+  transferMarker: "#354345",
+  stairsMarker: "#b27622",
 
   /** Neutral ink used for the legend's generic route-style swatches. */
-  legendInk: "#3f5148",
+  legendInk: "#192426",
 } as const;
 
 export const LANDMARK_ACCENTS: Record<LandmarkKind, string> = {
-  origin: "#3f8f92",
-  venue: "#d97757",
-  station: "#5c7d99",
-  entrance: "#d9a441",
-  crossing: "#8a8f8c",
-  park: "#6f9a6a",
-  building: "#9c8f76",
+  origin: "#3d765f",
+  venue: "#e75a3c",
+  station: "#51686c",
+  entrance: "#b27622",
+  crossing: "#7b8586",
+  park: "#89a184",
+  building: "#aaa79f",
 };
 
 export function landmarkAccent(kind: LandmarkKind): string {

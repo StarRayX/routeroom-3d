@@ -22,10 +22,7 @@ export function SegmentInspector({ onReportSegment }: SegmentInspectorProps) {
     return (
       <section className="card panel" aria-labelledby="inspector-heading">
         <div className="panel-heading compact">
-          <div>
-            <p className="eyebrow">SEGMENT INSPECTOR</p>
-            <h2 id="inspector-heading">{primaryRoute ? primaryRoute.name : "No route selected"}</h2>
-          </div>
+          <h2 id="inspector-heading">{primaryRoute ? primaryRoute.name : "No route selected"}</h2>
         </div>
         {!primaryRoute && <p className="empty-note">No primary route to inspect yet.</p>}
         {primaryRoute && (
@@ -56,23 +53,19 @@ export function SegmentInspector({ onReportSegment }: SegmentInspectorProps) {
   return (
     <section className="card panel" aria-labelledby="inspector-heading">
       <div className="panel-heading compact">
-        <div>
-          <p className="eyebrow">SEGMENT INSPECTOR</p>
-          <h2 id="inspector-heading">{segment.label}</h2>
-        </div>
-        <span className="chip">{segment.mode}</span>
+        <h2 id="inspector-heading">{segment.label}</h2>
+        <span className="segment-mode">{segment.mode}</span>
       </div>
 
-      <div className="chip-row">
-        <span className="chip">{fromLandmark?.name ?? segment.fromLandmarkId} → {toLandmark?.name ?? segment.toLandmarkId}</span>
-        <span className="chip">{formatMinutesRange(segment.durationMin, segment.durationMax)}</span>
-        <span className="chip">{formatMeters(segment.distanceMeters)}</span>
-        <span className="chip">{segment.accessibility} access</span>
-        <span className="chip">{segment.rainExposure} rain exposure</span>
-        {segment.hasStairs && <span className="chip chip-warn">Stairs</span>}
-        {segment.covered && <span className="chip">Covered</span>}
-        {isTransfer && <span className="chip">Transfer</span>}
-      </div>
+      <dl className="segment-facts">
+        <div><dt>From</dt><dd>{fromLandmark?.name ?? segment.fromLandmarkId}</dd></div>
+        <div><dt>To</dt><dd>{toLandmark?.name ?? segment.toLandmarkId}</dd></div>
+        <div><dt>Time</dt><dd>{formatMinutesRange(segment.durationMin, segment.durationMax)}</dd></div>
+        <div><dt>Distance</dt><dd>{formatMeters(segment.distanceMeters)}</dd></div>
+        <div><dt>Access</dt><dd>{segment.accessibility}</dd></div>
+        <div><dt>Rain</dt><dd>{segment.rainExposure}</dd></div>
+        {(segment.hasStairs || segment.covered || isTransfer) && <div><dt>Notes</dt><dd>{[segment.hasStairs && "Stairs", segment.covered && "Covered", isTransfer && "Transfer"].filter(Boolean).join(" · ")}</dd></div>}
+      </dl>
 
       {segment.lineName && <p className="segment-line-name">Line: {segment.lineName}</p>}
 
@@ -89,7 +82,7 @@ export function SegmentInspector({ onReportSegment }: SegmentInspectorProps) {
           {activeReports.map((report) => (
             <blockquote key={report.id} className="report-block">
               <p>{report.text}</p>
-              {report.source === "user" && <span className="badge badge-amber">User-submitted, treat as unverified</span>}
+              {report.source === "user" && <p className="report-note">User-submitted; treat as unverified.</p>}
               <span className="route-card-freshness">
                 Observed {formatTime(report.observedAt, city)} · Expires {formatTime(report.expiresAt, city)}
               </span>

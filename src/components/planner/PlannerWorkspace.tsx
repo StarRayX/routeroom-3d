@@ -1,6 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import gsap from "gsap";
+import { ArrowLeft, Chart, ChatRoundDots, Path, Warning } from "reicon-react";
 import { usePlanner } from "@/lib/planner-context";
 import { useWebMcpTools } from "@/lib/webmcp/useWebMcpTools";
 import { RouteScene, RouteMap2D } from "@/components/route-scene";
@@ -10,17 +12,12 @@ import { TopBar } from "@/components/panels/TopBar";
 import { TripStrip } from "@/components/panels/TripStrip";
 import { RouteCards } from "@/components/panels/RouteCards";
 import { PreferenceControls } from "@/components/panels/PreferenceControls";
-import { ScoreBreakdown } from "@/components/panels/ScoreBreakdown";
-import { ComparisonTable } from "@/components/panels/ComparisonTable";
-import { CritiquePanel } from "@/components/panels/CritiquePanel";
-import { SegmentInspector } from "@/components/panels/SegmentInspector";
-import { DisruptionPanel } from "@/components/panels/DisruptionPanel";
 import { ActivityLog } from "@/components/panels/ActivityLog";
-import { ReportsPanel } from "@/components/panels/ReportsPanel";
 import { PlanDock } from "@/components/panels/PlanDock";
 import { ConfirmationPanel } from "@/components/panels/ConfirmationPanel";
 import { ToolConsole } from "@/components/panels/ToolConsole";
 import type { RouteReport } from "@/lib/types";
+import { InsightDrawer, type InsightTab } from "./InsightDrawer";
 
 export function PlannerWorkspace() {
   useShareParam();
@@ -44,6 +41,46 @@ export function PlannerWorkspace() {
   const setViewMode = usePlanner((s) => s.setViewMode);
 
   const [reportPrefillSegmentId, setReportPrefillSegmentId] = useState<string | undefined>(undefined);
+  const [insightOpen, setInsightOpen] = useState(false);
+  const [insightTab, setInsightTab] = useState<InsightTab>("why");
+  const [sidebarMode, setSidebarMode] = useState<"routes" | "preferences" | "activity" | "insight">("routes");
+  const [debugEnabled, setDebugEnabled] = useState(false);
+  const stageRef = useRef<HTMLElement>(null);
+  const sidebarContentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setDebugEnabled(new URLSearchParams(window.location.search).get("debug") === "1");
+  }, []);
+
+  useLayoutEffect(() => {
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced || !primaryRouteId || !stageRef.current) return;
+
+    const selected = stageRef.current.querySelector(`[data-route-id="${primaryRouteId}"]`);
+    const scene = stageRef.current.querySelector(".scene-column");
+    const context = gsap.context(() => {
+      if (selected) {
+        gsap.fromTo(selected, { opacity: 0.7 }, { opacity: 1, duration: 0.18, ease: "power3.out" });
+      }
+      if (scene) {
+        gsap.fromTo(scene, { opacity: 0.92 }, { opacity: 1, duration: 0.28, ease: "power3.out", clearProps: "opacity" });
+      }
+    }, stageRef);
+
+    return () => context.revert();
+  }, [primaryRouteId]);
+
+  useLayoutEffect(() => {
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced || !sidebarContentRef.current) return;
+    gsap.fromTo(sidebarContentRef.current, { opacity: 0 }, { opacity: 1, duration: 0.16, ease: "power2.out" });
+  }, [sidebarMode, insightTab]);
+
+  const openInsight = (tab: InsightTab) => {
+    setInsightTab(tab);
+    setInsightOpen(true);
+    setSidebarMode("insight");
+  };
 
   const routes = useMemo(() => ranked.map((entry) => entry.route), [ranked]);
 
@@ -70,6 +107,7 @@ export function PlannerWorkspace() {
     onSelectSegment: (routeId: string, segmentId: string) => {
       focusSegment(routeId, segmentId, "human");
       inspect(routeId, segmentId, "human");
+      openInsight("segments");
     },
     onSelectLandmark: (landmarkId: string) => {
       const landmark = getLandmark(city, landmarkId);
@@ -80,29 +118,90 @@ export function PlannerWorkspace() {
 
   return (
     <main className="app-shell">
-      <TopBar status={status} registeredCount={registered.length} />
-      <TripStrip />
+      <TopBar
+        status={status}
+        registeredCount={registered.length}
+        onOpenPreferences={() => setSidebarMode("preferences")}
+        onOpenActivity={() => setSidebarMode("activity")}
+      />
 
-      <section className="scene-row">
-        <div className="scene-column">{viewMode === "list" ? <RouteMap2D {...sceneProps} /> : <RouteScene {...sceneProps} />}</div>
-        <div className="route-cards-column">
-          <RouteCards />
-        </div>
+      <section ref={stageRef} className="planner-frame">
+        <aside className={`route-sidebar route-sidebar-${sidebarMode}`} aria-label="Route planning controls">
+          {sidebarMode === "routes" && <TripStrip />}
+
+          <div ref={sidebarContentRef} className="route-sidebar-content">
+            {sidebarMode === "routes" && (
+              <>
+                <div className="sidebar-heading">
+                  <h1>Routes</h1>
+                  <span>{routes.length} options</span>
+                </div>
+                <div className="route-cards-column">
+                  <RouteCards onOpenReasoning={() => openInsight("why")} />
+                </div>
+                <PlanDock />
+              </>
+            )}
+
+            {sidebarMode === "preferences" && (
+              <div className="sidebar-pane">
+                <div className="sidebar-pane-header">
+                  <button type="button" className="back-button" onClick={() => setSidebarMode("routes")}>
+                    <ArrowLeft size={17} weight="Outline" aria-hidden="true" /> Back
+                  </button>
+                  <h1>Preferences</h1>
+                </div>
+                <PreferenceControls />
+              </div>
+            )}
+
+            {sidebarMode === "activity" && (
+              <div className="sidebar-pane">
+                <div className="sidebar-pane-header">
+                  <button type="button" className="back-button" onClick={() => setSidebarMode("routes")}>
+                    <ArrowLeft size={17} weight="Outline" aria-hidden="true" /> Back
+                  </button>
+                  <h1>Activity</h1>
+                </div>
+                <ActivityLog />
+              </div>
+            )}
+
+            {sidebarMode === "insight" && insightOpen && (
+              <InsightDrawer
+                activeTab={insightTab}
+                open={insightOpen}
+                reportPrefillSegmentId={reportPrefillSegmentId}
+                onTabChange={setInsightTab}
+                onClose={() => {
+                  setInsightOpen(false);
+                  setSidebarMode("routes");
+                }}
+                onReportSegment={(segmentId) => {
+                  setReportPrefillSegmentId(segmentId);
+                  openInsight("reports");
+                }}
+              />
+            )}
+          </div>
+        </aside>
+
+        <section className="map-workspace" aria-label="Route map">
+          <div className="scene-column">{viewMode === "list" ? <RouteMap2D {...sceneProps} /> : <RouteScene {...sceneProps} />}</div>
+          <div className="inspection-launcher" aria-label="Route inspection tools">
+            <button type="button" onClick={() => openInsight("why")}><Chart size={17} weight="Outline" /><span>Why</span></button>
+            <button type="button" onClick={() => openInsight("segments")}><Path size={17} weight="Outline" /><span>Segments</span></button>
+            <button type="button" onClick={() => openInsight("stress")}><Warning size={17} weight="Outline" /><span>Test</span></button>
+            <button type="button" onClick={() => openInsight("reports")}><ChatRoundDots size={17} weight="Outline" /><span>Reports</span></button>
+          </div>
+        </section>
       </section>
 
-      <section className="panel-grid">
-        <PreferenceControls />
-        <ScoreBreakdown />
-        <ComparisonTable />
-        <CritiquePanel />
-        <SegmentInspector onReportSegment={setReportPrefillSegmentId} />
-        <DisruptionPanel />
-        <ActivityLog />
-        <ReportsPanel prefillSegmentId={reportPrefillSegmentId} />
-      </section>
-
-      <PlanDock />
-      <ToolConsole tools={tools} status={status} />
+      {debugEnabled && (
+        <section className="debug-region">
+          <ToolConsole tools={tools} status={status} />
+        </section>
+      )}
       <ConfirmationPanel />
     </main>
   );

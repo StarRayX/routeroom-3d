@@ -22,7 +22,6 @@ export function PreferenceControls() {
     <section className="card panel" aria-labelledby="preferences-heading">
       <div className="panel-heading compact">
         <div>
-          <p className="eyebrow">YOUR PRIORITIES</p>
           <h2 id="preferences-heading">Shape the recommendation</h2>
         </div>
         <span className="human-tag">Human controlled</span>
@@ -110,7 +109,7 @@ export function PreferenceControls() {
         </label>
       </div>
 
-      <p className="recommendation-line">Recommendation: {topRouteName ?? "no route ranked yet"}</p>
+      <p className="recommendation-line">Current recommendation: {topRouteName ?? "no route ranked yet"}</p>
     </section>
   );
 }

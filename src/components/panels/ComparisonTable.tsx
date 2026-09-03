@@ -30,10 +30,7 @@ export function ComparisonTable() {
   return (
     <section className="card panel panel-full" aria-labelledby="comparison-heading">
       <div className="panel-heading compact">
-        <div>
-          <p className="eyebrow">ROUTE COMPARISON</p>
-          <h2 id="comparison-heading">Criterion by criterion</h2>
-        </div>
+        <h2 id="comparison-heading">Criterion by criterion</h2>
       </div>
 
       <div className="filter-chips" role="group" aria-label="Comparison criteria">
@@ -61,7 +58,7 @@ export function ComparisonTable() {
               <tr key={row.routeId} className={row.routeId === comparison.recommendedRouteId ? "is-recommended" : ""}>
                 <th scope="row">
                   {row.name}
-                  {row.routeId === comparison.recommendedRouteId && <span className="badge badge-teal">Recommended</span>}
+                  {row.routeId === comparison.recommendedRouteId && <span className="table-note">Recommended</span>}
                 </th>
                 {comparison.criteria.map((criterion) => {
                   const cell = row.cells[criterion];

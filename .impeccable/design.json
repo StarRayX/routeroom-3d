@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-03T15:20:00.000Z",
+  "title": "Design System: RouteRoom",
+  "extensions": {
+    "colorMeta": {
+      "signal-vermilion": { "role": "primary", "displayName": "Signal Vermilion", "canonical": "oklch(65% 0.17 35)", "tonalRamp": ["oklch(22% 0.06 35)", "oklch(32% 0.09 35)", "oklch(43% 0.12 35)", "oklch(54% 0.15 35)", "oklch(65% 0.17 35)", "oklch(76% 0.12 35)", "oklch(87% 0.06 35)", "oklch(96% 0.02 35)"] },
+      "civic-ink": { "role": "neutral", "displayName": "Civic Ink", "canonical": "oklch(25% 0.02 205)", "tonalRamp": ["oklch(15% 0.02 205)", "oklch(25% 0.02 205)", "oklch(35% 0.018 205)", "oklch(48% 0.015 205)", "oklch(60% 0.012 205)", "oklch(72% 0.01 205)", "oklch(84% 0.008 205)", "oklch(95% 0.006 205)"] },
+      "map-paper": { "role": "neutral", "displayName": "Map Paper", "canonical": "oklch(95% 0.012 88)", "tonalRamp": ["oklch(18% 0.012 88)", "oklch(30% 0.012 88)", "oklch(42% 0.012 88)", "oklch(54% 0.012 88)", "oklch(66% 0.012 88)", "oklch(78% 0.012 88)", "oklch(88% 0.012 88)", "oklch(95% 0.012 88)"] }
+    },
+    "typographyMeta": {
+      "headline": { "displayName": "Decision headline", "purpose": "The current route question and drawer titles." },
+      "body": { "displayName": "Interface body", "purpose": "Evidence, explanations, and route summaries." },
+      "label": { "displayName": "Operational label", "purpose": "Compact controls and metadata." }
+    },
+    "shadows": [
+      { "name": "ambient-lift", "value": "0 12px 36px rgba(25, 36, 38, 0.10)", "purpose": "Detached drawers and docks." },
+      { "name": "confirmation-lift", "value": "0 24px 64px rgba(25, 36, 38, 0.18)", "purpose": "Human confirmation sheet only." }
+    ],
+    "motion": [
+      { "name": "state", "value": "180ms cubic-bezier(0.22, 1, 0.36, 1)", "purpose": "Buttons, tabs, and compact state changes." },
+      { "name": "spatial", "value": "320ms cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Route focus and inspection drawer transitions." }
+    ],
+    "breakpoints": [
+      { "name": "compact", "value": "760px" },
+      { "name": "workspace-stack", "value": "1080px" },
+      { "name": "wide", "value": "1440px" }
+    ]
+  },
+  "components": [],
+  "narrative": {
+    "northStar": "The Civic Model Table",
+    "overview": "RouteRoom feels like leaning over a beautifully made architectural model with a calm transit expert. Warm mineral surfaces make dense spatial information approachable; dark civic ink gives the interface authority; one vermilion route signal directs attention to the current decision.",
+    "keyCharacteristics": ["Map-first composition with a narrow decision rail.", "Restrained mineral palette with one route signal.", "Editorial hierarchy with operational density.", "Opaque tactile surfaces instead of glass.", "Visible human-agent state transitions."],
+    "rules": [
+      { "name": "The One Route Signal Rule", "body": "Vermilion occupies less than ten percent of the screen and always answers what is active now.", "section": "colors" },
+      { "name": "The Geography Owns Blue Rule", "body": "Blue belongs to water and geographic context, never generic buttons.", "section": "colors" },
+      { "name": "The Model Table Rule", "body": "Resting panels share one plane. If every panel casts a shadow, the hierarchy has failed.", "section": "elevation" }
+    ],
+    "dos": ["Do let the map occupy at least two-thirds of the main desktop workspace.", "Do use Reicon consistently at 16px or 18px with Outline weight for interface actions.", "Do animate ranking, focus, drawers, and confirmations with short GSAP transitions."],
+    "donts": ["Don't recreate a colorful low-poly toy city.", "Don't rebuild a wall of equally weighted dashboard cards.", "Don't add a generic AI chat bubble pasted over a normal route planner.", "Don't use glassmorphism, purple gradients, neon accents, or ornamental data visualization."]
+  }
+}

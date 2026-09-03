@@ -10,7 +10,6 @@ import type {
   Landmark,
   Point3,
   RouteOption,
-  RouteReport,
   RouteSegment,
   SceneDisplayMode,
   SceneFeature,
@@ -124,12 +123,12 @@ function Building({ feature }: { feature: SceneFeature }) {
     <group position={[x, 0, z]} rotation={[0, rotationY, 0]}>
       <mesh position={[0, height / 2, 0]} castShadow receiveShadow>
         <boxGeometry args={[width, height, depth]} />
-        <meshStandardMaterial color={feature.color} roughness={0.92} flatShading />
+        <meshStandardMaterial color={PALETTE.buildingDefault} roughness={0.94} flatShading />
       </mesh>
       {feature.roofColor && (
         <mesh position={[0, height + 0.07, 0]} castShadow>
           <boxGeometry args={[width * 0.92, 0.14, depth * 0.92]} />
-          <meshStandardMaterial color={feature.roofColor} roughness={0.85} flatShading />
+          <meshStandardMaterial color={PALETTE.roofDefault} roughness={0.9} flatShading />
         </mesh>
       )}
     </group>
@@ -247,6 +246,7 @@ function LandmarkMarker({
   onSelect?: (id: string) => void;
 }) {
   const accent = landmarkAccent(landmark.kind);
+  const showLabel = landmark.kind === "origin" || landmark.kind === "station" || landmark.kind === "entrance";
   return (
     <group
       position={landmark.position}
@@ -267,12 +267,14 @@ function LandmarkMarker({
         <octahedronGeometry args={[0.12, 0]} />
         <meshStandardMaterial color={accent} roughness={0.6} flatShading emissive={accent} emissiveIntensity={0.15} />
       </mesh>
-      <Html position={[0, 0.72, 0]} center distanceFactor={10} pointerEvents="none">
-        <span className="rs-label">
-          <span className="rs-label-dot" style={{ backgroundColor: accent }} />
-          {landmark.name}
-        </span>
-      </Html>
+      {showLabel && (
+        <Html position={[0, 0.72, 0]} center distanceFactor={10} pointerEvents="none">
+          <span className="rs-label">
+            <span className="rs-label-dot" style={{ backgroundColor: accent }} />
+            {landmark.name}
+          </span>
+        </Html>
+      )}
     </group>
   );
 }
@@ -281,9 +283,9 @@ function LandmarkMarker({
 // Routes
 // ---------------------------------------------------------------------------
 
-function modeStyle(mode: SceneDisplayMode, primaryColor: string) {
-  if (mode === "primary") return { color: primaryColor, lineWidth: 6, opacity: 1 };
-  if (mode === "backup") return { color: primaryColor, lineWidth: 4, opacity: 0.75 };
+function modeStyle(mode: SceneDisplayMode) {
+  if (mode === "primary") return { color: PALETTE.primaryRoute, lineWidth: 6, opacity: 1 };
+  if (mode === "backup") return { color: PALETTE.backupRoute, lineWidth: 4, opacity: 0.72 };
   return { color: PALETTE.candidateRoute, lineWidth: 2.5, opacity: 0.3 };
 }
 
@@ -304,7 +306,7 @@ function RouteRibbon({
     () => liftPoints(concatSegmentPoints(route.segments), liftY),
     [route.segments, liftY],
   );
-  const style = modeStyle(mode, route.primaryColor);
+  const style = modeStyle(mode);
   const opacity = dimmed ? Math.min(style.opacity, 0.15) : style.opacity;
   const isBackup = mode === "backup";
 
@@ -383,7 +385,7 @@ function AnimatedDotsForRoute({
     return new CatmullRomCurve3(points.map(([x, y, z]) => new Vector3(x, y, z)), false, "catmullrom", 0.05);
   }, [points]);
   if (!curve) return null;
-  return <AnimatedDots curve={curve} color={route.primaryColor} reducedMotion={reducedMotion} />;
+  return <AnimatedDots curve={curve} color={PALETTE.primaryRoute} reducedMotion={reducedMotion} />;
 }
 
 function TransferMarker({ position }: { position: Point3 }) {
@@ -426,7 +428,7 @@ function SegmentOverlay({
         <Line
           key={`${route.id}-hit-${segment.id}`}
           points={liftPoints(segment.points, liftY)}
-          color={route.primaryColor}
+          color={PALETTE.candidateRoute}
           lineWidth={14}
           transparent
           opacity={0.001}
@@ -488,11 +490,9 @@ function PulsingHalo({
 }
 
 function ReportMarker({
-  report,
   position,
   onClick,
 }: {
-  report: RouteReport;
   position: Point3;
   onClick?: () => void;
 }) {
@@ -518,9 +518,6 @@ function ReportMarker({
           flatShading
         />
       </mesh>
-      <Html position={[0, 0.62, 0]} center distanceFactor={10} pointerEvents="none">
-        <span className="rs-label rs-label-report">{report.category.replace(/_/g, " ")}</span>
-      </Html>
     </group>
   );
 }
@@ -659,7 +656,7 @@ export function SceneContent({
       <directionalLight
         position={[5, 9, 4]}
         intensity={1.9}
-        color="#fff2d9"
+        color="#fffaf2"
         castShadow
         shadow-mapSize={[1024, 1024]}
         shadow-camera-left={-10}
@@ -667,15 +664,15 @@ export function SceneContent({
         shadow-camera-top={10}
         shadow-camera-bottom={-10}
       />
-      <directionalLight position={[-6, 5, -5]} intensity={0.55} color="#a9c9d1" />
+      <directionalLight position={[-6, 5, -5]} intensity={0.48} color="#dce9eb" />
 
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.08, 0]} receiveShadow>
         <planeGeometry args={GROUND_SIZE} />
-        <meshStandardMaterial color={PALETTE.ground} roughness={1} />
+        <meshStandardMaterial color={PALETTE.groundEdge} roughness={1} />
       </mesh>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.079, 0]}>
         <planeGeometry args={[GROUND_SIZE[0] * 0.97, GROUND_SIZE[1] * 0.97]} />
-        <meshStandardMaterial color={PALETTE.groundEdge} roughness={1} />
+        <meshStandardMaterial color={PALETTE.ground} roughness={1} />
       </mesh>
 
       {city.sceneFeatures.map((feature) => (
@@ -737,7 +734,6 @@ export function SceneContent({
         return (
           <ReportMarker
             key={report.id}
-            report={report}
             position={mid}
             onClick={() => onSelectSegment?.(found.route.id, found.segment.id)}
           />

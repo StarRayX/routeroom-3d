@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { usePlanner } from "@/lib/planner-context";
+import { Check, ShieldAlert, Xmark } from "reicon-react";
 
 function extractShareUrl(data: unknown): string | undefined {
   if (data && typeof data === "object" && "shareUrl" in data) {
@@ -18,6 +19,7 @@ export function ConfirmationPanel() {
   const [successMessage, setSuccessMessage] = useState<string | undefined>(undefined);
 
   if (!pending) return null;
+  const visibleDetails = pending.kind === "save_plan" ? pending.details.slice(0, 3) : pending.details;
 
   const handleConfirm = () => {
     const result = approveConfirmation(pending.id);
@@ -33,7 +35,7 @@ export function ConfirmationPanel() {
       <div className="confirmation-sheet-inner">
         <div className="confirmation-sheet-head">
           <span className="confirm-symbol" aria-hidden="true">
-            !
+            <ShieldAlert size={18} weight="Outline" />
           </span>
           <div>
             <h2 id="confirmation-title">{pending.title}</h2>
@@ -44,7 +46,7 @@ export function ConfirmationPanel() {
         <p className="confirmation-side-effect">{pending.sideEffect}</p>
 
         <ul className="confirmation-details">
-          {pending.details.map((line) => (
+          {visibleDetails.map((line) => (
             <li key={line}>{line}</li>
           ))}
         </ul>
@@ -53,10 +55,10 @@ export function ConfirmationPanel() {
 
         <div className="confirmation-actions">
           <button type="button" className="primary-button" onClick={handleConfirm}>
-            Confirm
+            <Check size={16} weight="Outline" aria-hidden="true" /> Confirm
           </button>
           <button type="button" className="secondary-button" autoFocus onClick={() => dismissConfirmation("human")}>
-            Not now
+            <Xmark size={15} weight="Outline" aria-hidden="true" /> Not now
           </button>
         </div>
       </div>

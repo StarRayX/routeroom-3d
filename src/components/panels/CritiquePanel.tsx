@@ -18,10 +18,7 @@ export function CritiquePanel() {
   return (
     <section className="card panel" aria-labelledby="critique-heading">
       <div className="panel-heading compact">
-        <div>
-          <p className="eyebrow">CRITIC</p>
-          <h2 id="critique-heading">Why not this route</h2>
-        </div>
+        <h2 id="critique-heading">Weakest point</h2>
         {critique && <span className="score-total">{Math.round(critique.confidence * 100)}% confidence</span>}
       </div>
 

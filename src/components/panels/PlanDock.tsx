@@ -4,6 +4,7 @@ import { useState } from "react";
 import { usePlanner } from "@/lib/planner-context";
 import { findRouteById } from "@/lib/route-engine";
 import type { SavedPlan } from "@/lib/types";
+import { Check, Copy, Route, Save, Share, Xmark } from "reicon-react";
 
 function buildShareUrl(cityId: string, plan: SavedPlan): string {
   if (typeof window === "undefined") return "";
@@ -41,15 +42,18 @@ export function PlanDock() {
   };
 
   return (
-    <section className="card panel panel-full plan-dock" aria-labelledby="plan-dock-heading">
+    <section className="plan-dock" aria-labelledby="plan-dock-heading">
       <div className="panel-heading compact">
-        <div>
-          <p className="eyebrow">ROUTE PLAN</p>
-          <h2 id="plan-dock-heading">Primary: {primaryName} · Backup: {backupName}</h2>
+        <div className="plan-dock-title">
+          <Route size={20} weight="Outline" aria-hidden="true" />
+          <div>
+            <h2 id="plan-dock-heading">{primaryName}</h2>
+            <p>Backup: {backupName}</p>
+          </div>
         </div>
         {!activeDraft && (
           <button type="button" className="primary-button" disabled={!primaryRouteId} onClick={() => primaryRouteId && createDraftPlan({ primaryRouteId, backupRouteId }, "human")}>
-            Create draft
+            <Save size={16} weight="Outline" aria-hidden="true" /> Create draft
           </button>
         )}
       </div>
@@ -57,23 +61,23 @@ export function PlanDock() {
       {activeDraft && (
         <div className="active-draft">
           <div className="active-draft-head">
-            <span className={`badge badge-status-${activeDraft.status}`}>{activeDraft.status}</span>
+            <span className="draft-status">{activeDraft.status === "draft" ? "Draft ready" : activeDraft.status}</span>
             <p>{activeDraft.summary}</p>
           </div>
           <div className="panel-footer">
             {activeDraft.status === "draft" && (
               <>
                 <button type="button" className="primary-button" onClick={() => savePlan(activeDraft.id, "human")}>
-                  Save plan
+                  <Check size={16} weight="Outline" aria-hidden="true" /> Save plan
                 </button>
                 <button type="button" className="text-button" onClick={() => discardDraft(activeDraft.id, "human")}>
-                  Discard draft
+                  <Xmark size={15} weight="Outline" aria-hidden="true" /> Discard
                 </button>
               </>
             )}
             {activeDraft.status !== "draft" && (
               <button type="button" className="secondary-button" onClick={() => sharePlan(activeDraft.id, "human")}>
-                Share link
+                <Share size={16} weight="Outline" aria-hidden="true" /> Share link
               </button>
             )}
           </div>
@@ -94,7 +98,7 @@ export function PlanDock() {
                   <div className="saved-plan-share">
                     <input type="text" readOnly value={buildShareUrl(city.id, plan)} aria-label={`Share link for ${plan.summary}`} />
                     <button type="button" className="secondary-button" onClick={() => handleCopy(plan)}>
-                      {copiedId === plan.id ? "Copied" : "Copy"}
+                      <Copy size={15} weight="Outline" aria-hidden="true" /> {copiedId === plan.id ? "Copied" : "Copy"}
                     </button>
                   </div>
                 )}

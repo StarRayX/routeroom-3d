@@ -63,9 +63,9 @@ function findSegment(
   return undefined;
 }
 
-function modeStyle2D(mode: SceneDisplayMode, primaryColor: string) {
-  if (mode === "primary") return { color: primaryColor, width: 0.16, opacity: 1 };
-  if (mode === "backup") return { color: primaryColor, width: 0.11, opacity: 0.75 };
+function modeStyle2D(mode: SceneDisplayMode) {
+  if (mode === "primary") return { color: PALETTE.primaryRoute, width: 0.16, opacity: 1 };
+  if (mode === "backup") return { color: PALETTE.backupRoute, width: 0.11, opacity: 0.72 };
   return { color: PALETTE.candidateRoute, width: 0.06, opacity: 0.3 };
 }
 
@@ -83,8 +83,8 @@ function FeatureShape({ feature }: { feature: SceneFeature }) {
           width={w}
           height={d}
           rx={0.08}
-          fill={feature.color || PALETTE.buildingDefault}
-          stroke={feature.roofColor || PALETTE.roofDefault}
+          fill={PALETTE.buildingDefault}
+          stroke={PALETTE.roofDefault}
           strokeWidth={0.03}
           filter="url(#rs-drop-shadow)"
           transform={rotation ? `rotate(${rotation} ${sx} ${sy})` : undefined}
@@ -98,19 +98,19 @@ function FeatureShape({ feature }: { feature: SceneFeature }) {
           width={w}
           height={d}
           rx={0.15}
-          fill={feature.color || PALETTE.water}
+          fill={PALETTE.water}
           opacity={0.92}
         />
       );
     case "park":
       return (
-        <rect x={sx - w / 2} y={sy - d / 2} width={w} height={d} rx={0.12} fill={feature.color || PALETTE.park} />
+        <rect x={sx - w / 2} y={sy - d / 2} width={w} height={d} rx={0.12} fill={PALETTE.park} />
       );
     case "road": {
       const horizontal = w >= d;
       return (
         <g>
-          <rect x={sx - w / 2} y={sy - d / 2} width={w} height={d} fill={feature.color || PALETTE.road} />
+          <rect x={sx - w / 2} y={sy - d / 2} width={w} height={d} fill={PALETTE.road} />
           {horizontal ? (
             <line
               x1={sx - w * 0.43}
@@ -137,7 +137,7 @@ function FeatureShape({ feature }: { feature: SceneFeature }) {
     }
     case "plaza":
       return (
-        <rect x={sx - w / 2} y={sy - d / 2} width={w} height={d} rx={0.06} fill={feature.color || PALETTE.plaza} />
+        <rect x={sx - w / 2} y={sy - d / 2} width={w} height={d} rx={0.06} fill={PALETTE.plaza} />
       );
     default:
       return null;
@@ -147,12 +147,16 @@ function FeatureShape({ feature }: { feature: SceneFeature }) {
 function LandmarkDot({ landmark, onSelect }: { landmark: Landmark; onSelect?: (id: string) => void }) {
   const [sx, sy] = toSvg(landmark.position);
   const accent = landmarkAccent(landmark.kind);
+  const showLabel = landmark.kind === "origin" || landmark.kind === "station" || landmark.kind === "entrance";
+  const placeLabelLeft = sx > 3.5;
   return (
     <g onClick={() => onSelect?.(landmark.id)} style={{ cursor: onSelect ? "pointer" : "default" }}>
       <circle cx={sx} cy={sy} r={0.16} fill={accent} stroke="#fffaf0" strokeWidth={0.03} />
-      <text x={sx + 0.24} y={sy + 0.08} fontSize={0.3} className="rs-map2d-label">
-        {landmark.name}
-      </text>
+      {showLabel && (
+        <text x={sx + (placeLabelLeft ? -0.24 : 0.24)} y={sy + 0.08} textAnchor={placeLabelLeft ? "end" : "start"} fontSize={0.3} className="rs-map2d-label">
+          {landmark.name}
+        </text>
+      )}
     </g>
   );
 }
@@ -170,7 +174,7 @@ function RoutePath({
   onSelectRoute: (routeId: string) => void;
   onSelectSegment?: (routeId: string, segmentId: string) => void;
 }) {
-  const style = modeStyle2D(mode, route.primaryColor);
+  const style = modeStyle2D(mode);
   const opacity = dimmed ? Math.min(style.opacity, 0.15) : style.opacity;
 
   if (mode === "primary" || mode === "backup") {
@@ -298,9 +302,6 @@ export function RouteMap2D(props: RouteSceneProps) {
                 style={{ cursor: onSelectSegment ? "pointer" : "default" }}
               >
                 <circle cx={sx} cy={sy} r={0.15} fill={PALETTE.reportMarker} stroke="#fffaf0" strokeWidth={0.03} />
-                <text x={sx} y={sy - 0.24} textAnchor="middle" fontSize={0.24} className="rs-map2d-label">
-                  {report.category.replace(/_/g, " ")}
-                </text>
                 <title>{report.text}</title>
               </g>
             );
@@ -319,14 +320,15 @@ export function RouteMap2D(props: RouteSceneProps) {
       <div className="rs-map2d-routes">
         {routes.map((route) => {
           const isPrimary = displayModes[route.id] === "primary";
+          const isBackup = displayModes[route.id] === "backup";
           return (
             <button
               key={route.id}
               type="button"
-              className={`rs-map2d-route-btn${isPrimary ? " is-primary" : ""}`}
+              className={`rs-map2d-route-btn${isPrimary ? " is-primary" : ""}${isBackup ? " is-backup" : ""}`}
               onClick={() => onSelectRoute(route.id)}
             >
-              <span className="rs-map2d-swatch" style={{ backgroundColor: route.primaryColor }} />
+              <span className="rs-map2d-swatch" style={{ backgroundColor: isPrimary ? PALETTE.primaryRoute : isBackup ? PALETTE.backupRoute : PALETTE.candidateRoute }} />
               {route.name}
             </button>
           );

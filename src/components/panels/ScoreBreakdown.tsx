@@ -12,8 +12,8 @@ export function ScoreBreakdown() {
     <section className="card panel" aria-labelledby="score-heading">
       <div className="panel-heading compact">
         <div>
-          <p className="eyebrow">SCORE BREAKDOWN</p>
-          <h2 id="score-heading">{entry ? entry.route.name : "No primary route"}</h2>
+          <h2 id="score-heading">Score breakdown</h2>
+          {entry && <p className="route-card-freshness">{entry.route.name}</p>}
         </div>
         {entry && <span className="score-total">{Math.round(entry.score.total * 100)}%</span>}
       </div>
@@ -44,7 +44,7 @@ export function ScoreBreakdown() {
 
           {entry.score.penalties.length > 0 && (
             <div className="penalty-list">
-              <p className="eyebrow">PENALTIES</p>
+              <h3>Penalties</h3>
               <ul>
                 {entry.score.penalties.map((penalty) => (
                   <li key={penalty.key} className="penalty-item">

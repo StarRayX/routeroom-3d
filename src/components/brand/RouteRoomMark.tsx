@@ -1,0 +1,30 @@
+type RouteRoomMarkProps = {
+  size?: number;
+  className?: string;
+};
+
+export function RouteRoomMark({ size = 36, className }: RouteRoomMarkProps) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 64 64"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <path d="M8 19.5 31.75 6 56 19.5v27L31.75 58 8 44.5v-25Z" fill="currentColor" />
+      <path d="m17 24.5 14.75-8.25L47 24.5l-15.25 8.75L17 24.5Z" fill="#F3F1EB" />
+      <path d="M17 24.5v14l14.75 8.5V33.25L17 24.5Z" fill="#D8D6CF" />
+      <path
+        d="M11.5 44.5c8.25 0 7.25-15.25 17.5-15.25h7c7.75 0 7.25-9.75 16.5-9.75"
+        stroke="#E75A3C"
+        strokeWidth="5"
+        strokeLinecap="round"
+      />
+      <circle cx="11.5" cy="44.5" r="3.25" fill="#F3F1EB" stroke="#E75A3C" strokeWidth="2" />
+      <circle cx="52.5" cy="19.5" r="3.25" fill="#F3F1EB" stroke="#E75A3C" strokeWidth="2" />
+    </svg>
+  );
+}

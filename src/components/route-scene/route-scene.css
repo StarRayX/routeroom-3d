@@ -1,262 +1,45 @@
-/* RouteRoom 3D scene chrome. All class names are prefixed rs- so they never
-   collide with the rest of the app's global stylesheet. */
+.rs-shell, .rs-map2d { position: relative; width: 100%; height: 100%; min-height: 500px; overflow: hidden; background: #f3f1eb; }
+.rs-shell canvas { display: block; width: 100% !important; height: 100% !important; }
+.rs-overlay { position: absolute; inset: 0; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 12px; font-family: inherit; }
+.rs-topbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.rs-caption, .rs-reset-btn, .rs-legend { pointer-events: auto; color: #192426; border: 1px solid #d7d5ce; background: #fbfaf6; }
+.rs-caption { min-width: 0; max-width: calc(100% - 360px); display: flex; align-items: baseline; gap: 4px; padding: 7px 10px; border-radius: 7px; font-size: 0.7rem; line-height: 1.4; }
+.rs-caption strong { font-weight: 750; }
+.rs-caption span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rs-reset-btn { position: absolute; top: 54px; right: 12px; display: inline-flex; align-items: center; gap: 6px; padding: 7px 9px; border-radius: 7px; font-size: 0.69rem; font-weight: 700; transition: border-color 140ms ease, background-color 140ms ease; }
+.rs-reset-btn:hover { border-color: #b9b8b1; }
+.rs-reset-btn:focus-visible, .rs-map2d-route-btn:focus-visible { box-shadow: 0 0 0 3px rgb(231 90 60 / 0.24); }
+.rs-legend { align-self: flex-start; display: flex; flex-wrap: wrap; gap: 9px; max-width: 100%; padding: 7px 10px; border-radius: 9px; font-size: 0.63rem; }
+.rs-legend-item { display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+.rs-legend-swatch { display: inline-block; width: 14px; height: 3px; flex: 0 0 auto; border-radius: 3px; }
+.rs-legend-swatch--dashed { background-image: repeating-linear-gradient(to right, transparent 0 3px, #fbfaf6 3px 6px); }
+.rs-legend-dot { width: 7px; height: 7px; display: inline-block; flex: 0 0 auto; border-radius: 50%; }
+.rs-label { pointer-events: none; display: inline-flex; align-items: center; gap: 5px; padding: 3px 7px; border: 1px solid #d7d5ce; border-radius: 6px; color: #192426; background: #fbfaf6; box-shadow: 0 2px 7px rgb(25 36 38 / 0.1); font-size: 0.65rem; font-weight: 680; white-space: nowrap; transform: translateY(-4px); }
+.rs-label-dot { width: 6px; height: 6px; flex: 0 0 auto; border-radius: 50%; }
+.rs-label-report { color: #7d3a2e; border-color: rgb(231 90 60 / 0.32); background: #fff7f2; }
+.rs-loading { position: absolute; inset: 0; display: grid; place-items: center; color: #626d6f; font-size: 0.75rem; }
 
-.rs-shell {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  min-height: 520px;
-  background: #e9e4d8;
-  overflow: hidden;
-  border-radius: 14px;
-}
-
-.rs-shell canvas {
-  display: block;
-  width: 100% !important;
-  height: 100% !important;
-}
-
-.rs-overlay {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 12px;
-  font-family: inherit;
-}
-
-.rs-topbar {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.rs-caption {
-  pointer-events: auto;
-  max-width: 60%;
-  background: oklch(97% 0.015 88 / 0.82);
-  border: 1px solid oklch(30% 0.02 90 / 0.12);
-  border-radius: 10px;
-  padding: 7px 11px;
-  font-size: 12px;
-  line-height: 1.35;
-  color: oklch(28% 0.03 90);
-  backdrop-filter: blur(6px);
-}
-
-.rs-caption strong {
-  font-weight: 600;
-}
-
-.rs-reset-btn {
-  pointer-events: auto;
-  background: oklch(97% 0.015 88 / 0.9);
-  border: 1px solid oklch(30% 0.02 90 / 0.16);
-  border-radius: 8px;
-  padding: 7px 12px;
-  font-size: 12px;
-  font-weight: 600;
-  color: oklch(28% 0.03 90);
-  cursor: pointer;
-  transition: background 120ms ease, transform 120ms ease;
-}
-
-.rs-reset-btn:hover {
-  background: oklch(100% 0 0 / 0.95);
-}
-
-.rs-reset-btn:active {
-  transform: scale(0.97);
-}
-
-.rs-legend {
-  pointer-events: auto;
-  align-self: flex-end;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  background: oklch(97% 0.015 88 / 0.82);
-  border: 1px solid oklch(30% 0.02 90 / 0.12);
-  border-radius: 10px;
-  padding: 7px 11px;
-  font-size: 11px;
-  color: oklch(28% 0.03 90);
-  backdrop-filter: blur(6px);
-  max-width: 100%;
-}
-
-.rs-legend-item {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  white-space: nowrap;
-}
-
-.rs-legend-swatch {
-  display: inline-block;
-  width: 14px;
-  height: 4px;
-  border-radius: 3px;
-  flex-shrink: 0;
-}
-
-.rs-legend-swatch--dashed {
-  background-image: repeating-linear-gradient(
-    to right,
-    transparent 0 3px,
-    oklch(97% 0.015 88) 3px 6px
-  );
-}
-
-.rs-legend-dot {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-/* Landmark label pill rendered via drei Html inside the canvas. */
-.rs-label {
-  pointer-events: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  background: oklch(98% 0.012 88 / 0.92);
-  border: 1px solid oklch(30% 0.02 90 / 0.14);
-  border-radius: 999px;
-  padding: 3px 9px 3px 7px;
-  font-size: 11px;
-  font-weight: 600;
-  color: oklch(26% 0.03 90);
-  white-space: nowrap;
-  box-shadow: 0 2px 6px oklch(20% 0.02 90 / 0.15);
-  transform: translateY(-4px);
-}
-
-.rs-label-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.rs-label-report {
-  background: oklch(96% 0.05 45 / 0.95);
-  border-color: oklch(55% 0.12 40 / 0.4);
-  color: oklch(30% 0.08 40);
-}
-
-/* WebGL unavailable / SSR-not-mounted fallback shown before the 2D map. */
-.rs-loading {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: oklch(45% 0.02 90);
-  font-size: 13px;
-}
-
-/* --- 2D SVG fallback map --- */
-
-.rs-map2d {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  min-height: 520px;
-  background: #e9e4d8;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 10px;
-  box-sizing: border-box;
-}
-
-.rs-map2d-svg-wrap {
-  flex: 1;
-  min-height: 0;
-  border-radius: 10px;
-  overflow: hidden;
-  background: #e9e4d8;
-}
-
-.rs-map2d svg {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-/* Font size is set per-element via the fontSize SVG attribute (in scene
-   units, since these labels live inside the scaled viewBox) rather than
-   here, so this rule intentionally omits font-size. */
-.rs-map2d-label {
-  font-weight: 600;
-  fill: oklch(28% 0.03 90);
-  paint-order: stroke;
-  stroke: oklch(98% 0.01 88 / 0.85);
-  stroke-width: 0.05px;
-  stroke-linejoin: round;
-}
-
-.rs-compass {
-  font-weight: 700;
-  fill: oklch(40% 0.03 90);
-}
-
-.rs-map2d-routes {
-  pointer-events: auto;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.rs-map2d-route-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: oklch(97% 0.015 88 / 0.9);
-  border: 1px solid oklch(30% 0.02 90 / 0.14);
-  border-radius: 8px;
-  padding: 5px 10px;
-  font-size: 11px;
-  font-weight: 600;
-  color: oklch(28% 0.03 90);
-  cursor: pointer;
-  transition: background 120ms ease, transform 120ms ease;
-}
-
-.rs-map2d-route-btn:hover {
-  background: oklch(100% 0 0 / 0.95);
-}
-
-.rs-map2d-route-btn:active {
-  transform: scale(0.97);
-}
-
-.rs-map2d-route-btn.is-primary {
-  border-color: oklch(55% 0.1 40 / 0.5);
-}
-
-.rs-map2d-swatch {
-  display: inline-block;
-  width: 12px;
-  height: 4px;
-  border-radius: 2px;
-  flex-shrink: 0;
-}
+.rs-map2d { display: flex; flex-direction: column; gap: 8px; padding: 10px; }
+.rs-map2d-svg-wrap { min-height: 0; flex: 1; overflow: hidden; background: #f3f1eb; }
+.rs-map2d svg { width: 100%; height: 100%; display: block; }
+.rs-map2d-label { fill: #192426; stroke: rgb(251 250 246 / 0.9); stroke-width: 0.05px; stroke-linejoin: round; paint-order: stroke; font-weight: 680; }
+.rs-compass { fill: #626d6f; font-weight: 750; }
+.rs-map2d-routes { display: flex; flex-wrap: wrap; gap: 6px; }
+.rs-map2d-route-btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 9px; border: 1px solid #d7d5ce; border-radius: 7px; color: #626d6f; background: #fbfaf6; font-size: 0.67rem; font-weight: 700; }
+.rs-map2d-route-btn:hover { color: #192426; border-color: #b9b8b1; }
+.rs-map2d-route-btn.is-primary { color: #993925; border-color: rgb(231 90 60 / 0.45); background: #fff9f5; }
+.rs-map2d-route-btn.is-backup { color: #354345; border-style: dashed; }
+.rs-map2d-swatch { width: 12px; height: 3px; display: inline-block; flex: 0 0 auto; border-radius: 2px; }
 
 @media (max-width: 640px) {
-  .rs-caption {
-    max-width: 70%;
-    font-size: 11px;
-  }
-  .rs-legend {
-    font-size: 10px;
-    gap: 7px;
-  }
+  .rs-shell, .rs-map2d { min-height: 440px; }
+  .rs-caption { max-width: 58%; display: grid; gap: 0; font-size: 0.65rem; }
+  .rs-caption span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rs-reset-btn { top: 50px; right: 8px; width: 34px; height: 34px; justify-content: center; padding: 0; font-size: 0; }
+  .rs-legend { gap: 7px; font-size: 0.6rem; }
+  .rs-label { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rs-reset-btn { transition: none; }
 }

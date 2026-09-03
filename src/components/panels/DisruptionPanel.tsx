@@ -35,10 +35,7 @@ export function DisruptionPanel() {
   return (
     <section className="card panel panel-full" aria-labelledby="disruption-heading">
       <div className="panel-heading compact">
-        <div>
-          <p className="eyebrow">DISRUPTION SIMULATOR</p>
-          <h2 id="disruption-heading">Stress-test a route</h2>
-        </div>
+        <h2 id="disruption-heading">Stress-test a route</h2>
       </div>
 
       <div className="disruption-controls">
@@ -79,15 +76,15 @@ export function DisruptionPanel() {
         <div className="simulation-result">
           <div className="simulation-row">
             <div>
-              <span className="eyebrow">ORIGINAL ARRIVAL</span>
+              <span className="field-label">Original arrival</span>
               <strong>{formatTimeRange(lastSimulation.originalArrival.earliest, lastSimulation.originalArrival.latest, city)}</strong>
-              <span className={`pill pill-deadline-${lastSimulation.originalArrival.deadlineStatus}`}>{DEADLINE_LABEL[lastSimulation.originalArrival.deadlineStatus]}</span>
+              <span className={`route-arrival route-arrival-${lastSimulation.originalArrival.deadlineStatus}`}>{DEADLINE_LABEL[lastSimulation.originalArrival.deadlineStatus]}</span>
             </div>
             <span className="simulation-arrow" aria-hidden="true">→</span>
             <div>
-              <span className="eyebrow">REVISED ARRIVAL</span>
+              <span className="field-label">Revised arrival</span>
               <strong>{formatTimeRange(lastSimulation.revisedArrival.earliest, lastSimulation.revisedArrival.latest, city)}</strong>
-              <span className={`pill pill-deadline-${lastSimulation.revisedArrival.deadlineStatus}`}>{DEADLINE_LABEL[lastSimulation.revisedArrival.deadlineStatus]}</span>
+              <span className={`route-arrival route-arrival-${lastSimulation.revisedArrival.deadlineStatus}`}>{DEADLINE_LABEL[lastSimulation.revisedArrival.deadlineStatus]}</span>
             </div>
           </div>
 
@@ -98,7 +95,7 @@ export function DisruptionPanel() {
 
           {lastSimulation.backupCandidates.length > 0 && (
             <div className="backup-candidates">
-              <p className="eyebrow">BACKUP CANDIDATES</p>
+              <h3>Backup candidates</h3>
               <ul>
                 {lastSimulation.backupCandidates.map((candidate) => (
                   <li key={candidate.routeId} className="backup-candidate">

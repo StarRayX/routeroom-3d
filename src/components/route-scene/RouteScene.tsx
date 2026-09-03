@@ -7,6 +7,7 @@ import type { RouteSceneProps } from "./types";
 import { SceneContent } from "./SceneContent";
 import { RouteMap2D } from "./RouteMap2D";
 import { PALETTE } from "./palette";
+import { RotateLeft } from "reicon-react";
 import "./route-scene.css";
 
 function findSegment(
@@ -108,46 +109,33 @@ export function RouteScene(props: RouteSceneProps) {
       <div className="rs-overlay">
         <div className="rs-topbar">
           <div className="rs-caption" role="status" aria-live="polite">
-            <strong>{caption.title}.</strong> {caption.detail}
+            <strong>{caption.title}</strong>
+            <span>{caption.detail}</span>
           </div>
           <button
             type="button"
             className="rs-reset-btn"
             onClick={() => setResetSignal((count) => count + 1)}
           >
-            Reset view
+            <RotateLeft size={15} weight="Outline" aria-hidden="true" /> Reset view
           </button>
         </div>
 
         <div className="rs-legend" aria-label="Scene legend">
           <span className="rs-legend-item">
-            <i className="rs-legend-swatch" style={{ backgroundColor: PALETTE.legendInk }} />
+            <i className="rs-legend-swatch" style={{ backgroundColor: PALETTE.primaryRoute }} />
             Primary route
           </span>
           <span className="rs-legend-item">
             <i
               className="rs-legend-swatch rs-legend-swatch--dashed"
-              style={{ backgroundColor: PALETTE.legendInk, opacity: 0.75 }}
+              style={{ backgroundColor: PALETTE.backupRoute, opacity: 0.75 }}
             />
             Backup route
           </span>
           <span className="rs-legend-item">
-            <i
-              className="rs-legend-swatch"
-              style={{ backgroundColor: PALETTE.candidateRoute, opacity: 0.4 }}
-            />
-            Candidate route
-          </span>
-          <span className="rs-legend-item">
             <i className="rs-legend-dot" style={{ backgroundColor: PALETTE.reportMarker }} />
-            Report marker
-          </span>
-          <span className="rs-legend-item">
-            <i
-              className="rs-legend-dot"
-              style={{ backgroundColor: PALETTE.focusHalo, boxShadow: "0 0 0 1px #c9b98a inset" }}
-            />
-            Focus
+            Report
           </span>
         </div>
       </div>
