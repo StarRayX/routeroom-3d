@@ -13,7 +13,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "export:overlays": "tsx scripts/export-overlays.ts",
-    "import:osm": "node scripts/import-osm.mjs"
+    "import:osm": "node scripts/import-osm.mjs",
+    "screenshots": "node scripts/screenshots.mjs"
   },
   "dependencies": {
     "gsap": "^3.15.0",
@@ -31,6 +32,7 @@
     "@types/react-dom": "^19.1.2",
     "eslint": "^9.27.0",
     "eslint-config-next": "^15.5.0",
+    "puppeteer-core": "^23.11.1",
     "tsx": "^4.23.13",
     "typescript": "^5.8.3",
     "vitest": "^3.2.7"

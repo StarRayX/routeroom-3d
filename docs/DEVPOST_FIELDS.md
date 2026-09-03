@@ -132,10 +132,15 @@ next.js, react, typescript, zustand, zod, mapbox-gl-js, gsap, reicon, vitest, we
 
 ## Image gallery
 
-Replace the placeholder captures. Suggested set: the Amsterdam map with Metro
-52 as primary, the three route cards, a focused segment with its critique, the
-ranking after the 250 metre walking cap flips to Tram 4, and the confirmation
-sheet.
+Real captures are committed in docs/screenshots/ (3000x2000, 3:2). Upload in
+this order:
+
+- docs/screenshots/02-3d-map.png (the Mapbox 3D map with the routes)
+- docs/screenshots/06-confirmation.png (walking cap flips to Tram 4, human confirmation sheet)
+- docs/screenshots/07-tool-console.png (all 22 WebMCP tools by trust category)
+- docs/screenshots/01-overview.png (planner overview)
+- docs/screenshots/03-segment-inspect.png (segment inspector on the map)
+- docs/screenshots/05-disruption.png (delay simulation and backup)
 
 ## Video demo link
 
