@@ -127,8 +127,8 @@ next.js, react, typescript, zustand, zod, mapbox-gl-js, gsap, reicon, vitest, we
 
 ## "Try it out" links
 
-- Live app: `PLACEHOLDER_LIVE_URL/planner`  (fill after deploy)
-- Source code: `PLACEHOLDER_REPO_URL`  (fill after push)
+- Live app: `https://routeroom-3d.vercel.app/planner`  (fill after deploy)
+- Source code: `https://github.com/StarRayX/routeroom-3d`  (fill after push)
 
 ## Image gallery
 
@@ -161,7 +161,7 @@ PLACEHOLDER_YOUTUBE_URL  (fill after recording; under 3 minutes, with audio)
 ## Live URL that judges can access
 
 ```
-PLACEHOLDER_LIVE_URL/planner  (fill after deploy; must load in a WebMCP browser)
+https://routeroom-3d.vercel.app/planner  (fill after deploy; must load in a WebMCP browser)
 ```
 
 ## Testing instructions for judges (optional field)
@@ -178,7 +178,7 @@ fallback and still works.
 ## URL to your PUBLIC Code Repo
 
 ```
-PLACEHOLDER_REPO_URL  (public, MIT license visible in the About box)
+https://github.com/StarRayX/routeroom-3d  (public, MIT license visible in the About box)
 ```
 
 ## Which agent(s) or client(s) did you test your WebMCP tools with?
