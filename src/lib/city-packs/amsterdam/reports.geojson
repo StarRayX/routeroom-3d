@@ -1,0 +1,59 @@
+{
+ "type": "FeatureCollection",
+ "name": "routeroom_reports",
+ "provenance": {
+  "city_pack": "amsterdam_centrum_rai",
+  "generated_by": "scripts/export-overlays.ts",
+  "curated_at": "2026-09-03",
+  "geometry_source": "© OpenStreetMap contributors",
+  "geometry_license": "ODbL-1.0",
+  "geometry_exported_at": "2026-09-03T15:46:35.347Z",
+  "note": "Curated snapshot for the RouteRoom demo. Not live directions. Mapbox renders the basemap only."
+ },
+ "features": [
+  {
+   "type": "Feature",
+   "id": "report_tram4_delay",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.890697584341036,
+     52.353975854109116
+    ]
+   },
+   "properties": {
+    "report_id": "report_tram4_delay",
+    "segment_id": "seg_tram4_ride",
+    "route_id": "route_tram_4",
+    "category": "delay",
+    "confidence": "medium",
+    "source": "seed",
+    "observed_at": "2026-09-04T06:48:00+02:00",
+    "expires_at": "2026-09-04T09:30:00+02:00",
+    "landmark_id": "station_rai_tram_stop"
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "report_europaplein_lift",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.891466105999879,
+     52.361307640795296
+    ]
+   },
+   "properties": {
+    "report_id": "report_europaplein_lift",
+    "segment_id": "seg_metro52_ride",
+    "route_id": "route_metro_52",
+    "category": "accessibility",
+    "confidence": "low",
+    "source": "seed",
+    "observed_at": "2026-09-03T18:10:00+02:00",
+    "expires_at": "2026-09-05T18:00:00+02:00",
+    "landmark_id": "europaplein_station"
+   }
+  }
+ ]
+}

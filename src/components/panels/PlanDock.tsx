@@ -6,9 +6,10 @@ import { findRouteById } from "@/lib/route-engine";
 import type { SavedPlan } from "@/lib/types";
 import { Check, Copy, Route, Save, Share, Xmark } from "reicon-react";
 
+/** Mirrors the store's commitShare payload shape: c city, t trip, p primary, b backup, d deadline, r backup trigger. */
 function buildShareUrl(cityId: string, plan: SavedPlan): string {
   if (typeof window === "undefined") return "";
-  const payload = { c: cityId, p: plan.primaryRouteId, b: plan.backupRouteId ?? null, d: plan.arrivalDeadline, t: plan.backupTrigger };
+  const payload = { c: cityId, t: plan.tripId, p: plan.primaryRouteId, b: plan.backupRouteId ?? null, d: plan.arrivalDeadline, r: plan.backupTrigger };
   const encoded = window.btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
   return `${window.location.origin}/planner?plan=${encoded}`;
 }

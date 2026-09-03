@@ -2,7 +2,6 @@
 
 import type { ChangeEvent } from "react";
 import { usePlanner } from "@/lib/planner-context";
-import { cityPacks, getCityPack } from "@/lib/city-packs";
 import type { ViewMode, WebMcpStatus } from "@/lib/types";
 import { Activity, Building3, CheckCircle, Layers, List, Tuning, Warning } from "reicon-react";
 import { RouteRoomMark } from "@/components/brand/RouteRoomMark";
@@ -22,13 +21,16 @@ function statusText(status: WebMcpStatus): string {
 
 export function TopBar({ status, registeredCount, onOpenPreferences, onOpenActivity }: TopBarProps) {
   const city = usePlanner((s) => s.city);
+  const tripId = usePlanner((s) => s.trip.tripId);
   const viewMode = usePlanner((s) => s.viewMode);
-  const loadCityPack = usePlanner((s) => s.loadCityPack);
+  const selectTrip = usePlanner((s) => s.selectTrip);
   const setViewMode = usePlanner((s) => s.setViewMode);
 
-  const handleCityChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const next = getCityPack(event.target.value);
-    if (next) loadCityPack(next);
+  const activeTrip = city.trips.find((trip) => trip.id === tripId);
+  const hasMultipleTrips = city.trips.length > 1;
+
+  const handleTripChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    selectTrip(event.target.value, "human");
   };
 
   const handleViewMode = (mode: ViewMode) => {
@@ -43,17 +45,23 @@ export function TopBar({ status, registeredCount, onOpenPreferences, onOpenActiv
       </div>
 
       <div className="topbar-controls">
-        <label className="field-inline">
-          <span className="sr-only">City pack</span>
-          <Building3 size={16} weight="Outline" aria-hidden="true" />
-          <select value={city.id} onChange={handleCityChange} aria-label="City pack">
-            {cityPacks.map((pack) => (
-              <option key={pack.id} value={pack.id}>
-                {pack.name} · {pack.district}
-              </option>
-            ))}
-          </select>
-        </label>
+        {hasMultipleTrips ? (
+          <label className="field-inline">
+            <span className="sr-only">Trip</span>
+            <Building3 size={16} weight="Outline" aria-hidden="true" />
+            <select value={tripId} onChange={handleTripChange} aria-label="Trip">
+              {city.trips.map((trip) => (
+                <option key={trip.id} value={trip.id}>{trip.name}</option>
+              ))}
+            </select>
+          </label>
+        ) : (
+          <div className="city-context" title={activeTrip?.name ?? city.description}>
+            <Building3 size={16} weight="Outline" aria-hidden="true" />
+            <span>{city.name}</span>
+            <small>{city.district}</small>
+          </div>
+        )}
 
         <div className={`agent-status agent-status-${status}`} title={status === "available" ? `${registeredCount} WebMCP tools available` : undefined}>
           {status === "available" ? <CheckCircle size={15} weight="Outline" aria-hidden="true" /> : status === "unavailable" ? <Warning size={15} weight="Outline" aria-hidden="true" /> : <span className="pill-dot" aria-hidden="true" />}

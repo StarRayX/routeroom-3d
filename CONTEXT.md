@@ -68,25 +68,25 @@ The 3D map view used to make route geometry, entrances, transfers, walking, and 
 
 ## Scene projection
 
-The mapping from a city pack's real-world coordinates to the local meters the spatial explanation layer draws in. Distances and directions in the scene match the real district.
+The mapping from a city pack's real-world coordinates to whatever the spatial explanation layer draws in. With a map provider this is the provider's projection; with the SVG fallback it is a local flat projection.
 
 ## Corridor
 
-The complete, geographically truthful geometry of a trip from origin to destination as shown in the spatial explanation layer. The whole corridor is visible; detail varies along it.
+The complete, geographically truthful geometry of a trip from origin to destination. The basemap shows the whole corridor; RouteRoom annotations concentrate where decisions happen.
 
 ## Detail zone
 
-A part of the corridor rendered with individual block models because a decision happens there: the origin, transfers, stations and stops, walking segments, and venue entrances.
+An area of the corridor where RouteRoom places its annotations: stations and stops, transfers, walking segments, venue entrances, and observations. Outside a detail zone the basemap stands on its own.
 
-## Merged block
+## Basemap
 
-Neutral building geometry outside a detail zone, merged into a few simplified shapes so the corridor stays legible and cheap to render. A merged block carries no decision-relevant detail.
+The city rendering supplied by the visual provider (streets, 3D buildings, water, labels). RouteRoom does not author basemap geometry.
 
-_Avoid_: background buildings, scenery
+_Avoid_: block model, merged block, scenery
 
-## Block model
+## Route overlay
 
-A simplified extrusion of a real building footprint from the city pack's geometry. It communicates spatial context without attempting photorealistic 3D reconstruction.
+RouteRoom's own layer on top of the basemap: curated route segments, stops, entrances, transfers, hazards, and observations, each with a stable id shared by the UI and the WebMCP tools.
 
 ## Human confirmation
 
@@ -98,4 +98,6 @@ A reversible suggestion produced by an agent. It becomes a committed product sta
 
 ## Provider adapter
 
-The boundary between the route-room experience and a source of map geometry, geocoding, routing, or tiles. The product can change providers without changing the user-facing route concepts. In the hackathon MVP the only provider is the static city pack.
+The boundary between the route-room experience and a visual map provider. It is the scene component contract: the provider receives route-room state and draws it; it never ranks, routes, or decides. The MVP provider is Mapbox Standard, with the SVG fallback behind the same contract.
+
+_Avoid_: routing provider, map backend

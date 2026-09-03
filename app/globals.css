@@ -44,6 +44,8 @@ h3 { font-size: 13px; line-height: 1.35; }
 .topbar-controls { min-width: 0; flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
 .field-inline { min-width: 0; display: flex; align-items: center; gap: 6px; color: var(--muted); }
 .field-inline select { width: 210px; height: 34px; padding: 0 28px 0 9px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); font-size: 13px; }
+.city-context { min-width: 0; display: flex; align-items: center; gap: 7px; color: var(--ink-2); font-size: 13px; font-weight: 600; }
+.city-context small { color: var(--muted); font-size: 11px; font-weight: 500; }
 .agent-status { display: inline-flex; align-items: center; gap: 6px; padding: 0 8px; color: var(--muted); font-size: 12px; white-space: nowrap; }
 .agent-status-available { color: var(--success); }
 .agent-status-unavailable { color: var(--danger); }
@@ -70,7 +72,7 @@ h3 { font-size: 13px; line-height: 1.35; }
 .map-workspace { position: relative; min-width: 0; min-height: 0; overflow: hidden; background: var(--canvas); }
 .scene-column { position: absolute; inset: 0; }
 .scene-column > * { width: 100%; height: 100%; }
-.scene-column .rs-shell, .scene-column .rs-map2d { min-height: 0; }
+.scene-column .rs-shell, .scene-column .rs-map2d, .scene-column .rs-mapbox, .scene-column .rs-mapbox-fallback { min-height: 0; height: 100%; }
 .inspection-launcher { position: absolute; z-index: 4; top: 14px; right: 14px; display: flex; border: 1px solid var(--line-dark); border-radius: 8px; overflow: hidden; background: var(--surface); box-shadow: var(--shadow); }
 .inspection-launcher button { height: 34px; display: inline-flex; align-items: center; gap: 6px; padding: 0 9px; border: 0; border-right: 1px solid var(--line); color: var(--ink-2); background: transparent; font-size: 12px; font-weight: 600; }
 .inspection-launcher button:last-child { border-right: 0; }

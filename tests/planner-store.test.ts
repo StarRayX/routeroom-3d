@@ -97,9 +97,13 @@ describe("planner store confirmation gates", () => {
   });
 
   it("preference changes recompute the ranking and log the actor", () => {
+    // Note: with the Amsterdam pack all three route options share the same
+    // flat GVB fare, so a farePriority change alone cannot move the ranking
+    // (it scores identically for every route). A walking-priority change
+    // does, since walkingMeters differs meaningfully across the routes.
     const store = freshStore();
     const before = store.getState().ranked.map((entry) => entry.route.id);
-    store.getState().setPreferences({ farePriority: "high", reliabilityPriority: "low", minimizeRainExposure: false, avoidStairs: false }, "human");
+    store.getState().setPreferences({ walkingPriority: "high", maxWalkingMeters: 250 }, "human");
     const after = store.getState().ranked.map((entry) => entry.route.id);
     expect(after).not.toEqual(before);
     expect(store.getState().activity[0].actor).toBe("human");

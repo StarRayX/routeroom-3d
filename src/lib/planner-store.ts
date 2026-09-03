@@ -47,6 +47,7 @@ import type {
   SceneDisplayMode,
   SegmentInspection,
   ServiceReportDraft,
+  Trip,
   TripContext,
   ViewMode,
   WebMcpStatus,
@@ -90,10 +91,12 @@ export type PlannerData = {
   toolCallCount: number;
 };
 
+/**
+ * RouteRoom compares the curated route options of the active trip. Origin,
+ * destination, and departure come from the trip; only the deadline and the
+ * preferences can be adjusted (CONTEXT.md: Trip).
+ */
 export type FindRoutesInput = Partial<Preferences> & {
-  originId?: string;
-  destinationId?: string;
-  departAt?: string;
   arrivalDeadline?: string;
 };
 
@@ -130,6 +133,8 @@ export type PlannerActions = {
   noteToolCall: (toolName: string) => void;
   logActivity: (actor: Actor, kind: ActivityKind, label: string, detail: string, toolName?: string) => void;
 
+  /** Switch the active trip of the city pack. Resets ranking, selection, focus, and simulation; keeps drafts and plans. */
+  selectTrip: (tripId: string, actor: Actor) => boolean;
   findRouteOptions: (input: FindRoutesInput, actor: Actor) => RankedRoute[];
   setPreferences: (patch: Partial<Preferences>, actor: Actor) => RankedRoute[];
   compare: (routeIds: string[] | undefined, criteria: ComparisonCriterion[] | undefined, actor: Actor) => RouteComparison;
@@ -190,16 +195,28 @@ function recompute(
   return { ranked, comparison, critique };
 }
 
-function buildInitialData(city: CityPack, preferences: Preferences): PlannerData {
-  const trip: TripContext = {
+function resolveTrip(city: CityPack, tripId?: string): Trip {
+  const trip = city.trips.find((candidate) => candidate.id === (tripId ?? city.defaultTripId)) ?? city.trips[0];
+  if (!trip) throw new Error(`City pack "${city.id}" has no trips.`);
+  return trip;
+}
+
+function tripContextFor(city: CityPack, trip: Trip, preferences: Preferences): TripContext {
+  return {
     cityId: city.id,
-    originId: city.defaultTrip.originId,
-    destinationId: city.defaultTrip.destinationId,
-    departAt: city.defaultTrip.departAt,
-    arrivalDeadline: city.defaultTrip.arrivalDeadline,
+    tripId: trip.id,
+    originId: trip.originId,
+    destinationId: trip.destinationId,
+    departAt: trip.departAt,
+    arrivalDeadline: trip.arrivalDeadline,
     preferences,
   };
-  const now = city.defaultTrip.clockAt;
+}
+
+function buildInitialData(city: CityPack, preferences: Preferences, tripId?: string): PlannerData {
+  const activeTrip = resolveTrip(city, tripId);
+  const trip = tripContextFor(city, activeTrip, preferences);
+  const now = activeTrip.clockAt;
   const computed = recompute(city, trip, [], now);
   const primary = computed.ranked[0]?.route.id;
   const backup = computed.ranked.find((entry) => entry.route.id !== primary && entry.constraints.satisfied)?.route.id ?? computed.ranked[1]?.route.id;
@@ -290,7 +307,8 @@ export function createPlannerStore(city: CityPack, preferences: Preferences = de
       const plan = state.savedPlans.find((candidate) => candidate.id === planId);
       if (!plan) return { status: "not_found", message: "Saved plan not found. Save the plan before sharing it." };
       const token = plan.shareToken ?? makeId("share").replace("share_", "");
-      const payload = { c: state.city.id, p: plan.primaryRouteId, b: plan.backupRouteId ?? null, d: plan.arrivalDeadline, t: plan.backupTrigger };
+      /** Share payload: c city, t trip, p primary, b backup, d deadline, r backup trigger. No coordinates, no personal data. */
+      const payload = { c: state.city.id, t: plan.tripId, p: plan.primaryRouteId, b: plan.backupRouteId ?? null, d: plan.arrivalDeadline, r: plan.backupTrigger };
       const encoded = typeof window !== "undefined" ? window.btoa(unescape(encodeURIComponent(JSON.stringify(payload)))) : "";
       const origin = typeof window !== "undefined" ? window.location.origin : "";
       const shareUrl = `${origin}/planner?plan=${encoded}`;
@@ -347,15 +365,39 @@ export function createPlannerStore(city: CityPack, preferences: Preferences = de
       noteToolCall: (toolName) => { void toolName; set((state) => ({ toolCallCount: state.toolCallCount + 1 })); },
       logActivity: log,
 
+      selectTrip: (tripId, actor) => {
+        const state = get();
+        const nextTrip = state.city.trips.find((candidate) => candidate.id === tripId);
+        if (!nextTrip) return false;
+        const trip = tripContextFor(state.city, nextTrip, state.trip.preferences);
+        const now = nextTrip.clockAt;
+        const computed = recompute(state.city, trip, state.userReports, now);
+        const primary = computed.ranked[0]?.route.id;
+        const backup = computed.ranked.find((entry) => entry.route.id !== primary && entry.constraints.satisfied)?.route.id ?? computed.ranked[1]?.route.id;
+        set({
+          trip,
+          now,
+          ...computed,
+          primaryRouteId: primary,
+          backupRouteId: backup,
+          visibleRouteIds: computed.ranked.map((entry) => entry.route.id),
+          displayModes: modesFor({ ...state, ...computed }, primary, backup),
+          focusedSegmentId: undefined,
+          cameraTarget: undefined,
+          lastInspection: undefined,
+          lastSimulation: undefined,
+          pendingConfirmation: undefined,
+        });
+        log(actor, "suggestion", "Trip selected", `${nextTrip.name}: ${computed.ranked.length} curated route options. Top: ${computed.ranked[0]?.route.name ?? "none"}.`, "select_trip");
+        return true;
+      },
+
       findRouteOptions: (input, actor) => {
         const state = get();
-        const { originId, destinationId, departAt, arrivalDeadline, ...prefPatch } = input;
+        const { arrivalDeadline, ...prefPatch } = input;
         const cleanPatch = Object.fromEntries(Object.entries(prefPatch).filter(([, value]) => value !== undefined)) as Partial<Preferences>;
         const nextTrip: TripContext = {
           ...state.trip,
-          originId: originId && getLandmark(state.city, originId) ? originId : state.trip.originId,
-          destinationId: destinationId && getLandmark(state.city, destinationId) ? destinationId : state.trip.destinationId,
-          departAt: toIsoDateFallback(departAt, state.trip.departAt),
           arrivalDeadline: toIsoDateFallback(arrivalDeadline, state.trip.arrivalDeadline),
           preferences: { ...state.trip.preferences, ...cleanPatch },
         };
@@ -483,6 +525,7 @@ export function createPlannerStore(city: CityPack, preferences: Preferences = de
         const rationale = sanitizeReportText(input.rationale ?? primary.score.components.slice().sort((a, b) => b.weighted - a.weighted).slice(0, 2).map((component) => `${component.label}: ${component.inputValue}`).join(". "), 400);
         const draft: RoutePlanDraft = {
           id: makeId("draft"),
+          tripId: state.trip.tripId,
           primaryRouteId: primary.route.id,
           backupRouteId: backup?.route.id,
           backupTrigger,

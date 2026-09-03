@@ -13,6 +13,25 @@ current Chrome and OpenAI documentation before recording anything official:
 - [WebMCP specification](https://webmachinelearning.github.io/webmcp/)
 - [ChatGPT Learn: Site tools/WebMCP](https://learn.chatgpt.com/docs/webmcp)
 
+## Verification status (honest record)
+
+Last updated: 2026-09-04.
+
+**Top-level registration and discovery verified in the ChatGPT/Codex in-app browser at `http://localhost:3014` on 2026-09-04.** The browser discovered and displayed all 22 tools automatically on page load, including their exact schemas and annotations. This proves the top-level registration/discovery shape works. It does not yet prove that an agent successfully invoked a site tool through the browser.
+
+What has been verified so far, and how:
+
+- All 22 tools build, validate input, and return structured results, exercised through the `window.__routeroomTools` testing surface and the in-page tool console.
+- The confirmation gate was exercised end to end through that surface: `save_route_plan` returned `confirmation_required`, a human click on Confirm committed the save, and a second call returned `already_saved`.
+- Existing unit tests passed 85/85 on the main integration commit.
+- `registerWebMcpTools` detects `document.modelContext.registerTool` at the top level and reports `unavailable` otherwise; the status pill shows "Human mode" in a browser without WebMCP.
+
+What remains unverified:
+
+- [ ] An agent in the ChatGPT/Codex in-app browser can successfully invoke a site tool and the page updates.
+
+Do not describe agent invocation through the browser as validated in the README, the demo video, or the submission until the unchecked item above has been checked.
+
 ## Setting up a WebMCP-capable browser
 
 ### Chrome
@@ -64,14 +83,17 @@ await tool.execute({ max_fare: 8 });
       registered by calling `document.modelContext.registerTool(...)`
       directly in JavaScript, not through a declarative manifest or HTML
       attribute.
-- [ ] **Tools register on the top-level planner page during initial
+- [x] **Tools register on the top-level planner page during initial
       load.** Load `/planner` fresh (hard refresh), then immediately check
       the WebMCP browser's tool list or run
       `typeof document.modelContext?.registerTool` in DevTools before
-      clicking anything. Tools should already be registered; no button
-      click should be required first.
-- [ ] **At least eight useful tools are discoverable.** RouteRoom exposes
-      21; confirm the count in the WebMCP browser's tool panel, or run
+      clicking anything. On 2026-09-04, the ChatGPT/Codex in-app browser at
+      `http://localhost:3014` displayed all 22 tools automatically; no button
+      click was required.
+- [x] **At least eight useful tools are discoverable.** RouteRoom exposes
+      22; the ChatGPT/Codex in-app browser at `http://localhost:3014`
+      displayed all 22 automatically on page load on 2026-09-04, including
+      exact schemas and annotations.
       `(await window.__routeroomTools).length` in DevTools, and cross-check
       against `docs/TOOLS.md`.
 - [ ] **Tool names use clear `snake_case` naming.** Scan the tool list for
@@ -108,21 +130,22 @@ await tool.execute({ max_fare: 8 });
       plan.
 - [ ] **At least three route options are shown.** Confirm
       `find_route_options` (or the initial page load) returns
-      `route_tram_walk`, `route_bus_market`, and `route_step_free`.
+      `route_metro_52`, `route_tram_4`, and `route_metro_51`.
 - [ ] **The 3D scene displays the selected route and landmarks.** Visually
       confirm buildings, the river, and route ribbons render after
       `show_route_on_scene`, or confirm the list fallback renders instead
       when WebGL is unavailable (see `resize_window`/DevTools WebGL
       override, or a browser with WebGL disabled).
 - [ ] **Changing preferences changes the route comparison.** Call
-      `set_route_preferences({ fare_priority: "high", reliability_priority: "low", avoid_stairs: false, minimize_rain_exposure: false })`
-      and confirm the top-ranked route changes from `route_tram_walk` to
-      `route_bus_market` (see `docs/DEMO_SCRIPT.md` for why this specific
-      combination flips the recommendation).
+      `set_route_preferences({ walking_priority: "high", max_walking_meters: 250 })`
+      and confirm the top-ranked route changes from `route_metro_52` to
+      `route_tram_4`: Metro 52 is the fastest, step-free option but has a
+      372 m walk from Europaplein; Tram 4 goes to the door with 125 m of
+      walking (see `docs/DEMO_SCRIPT.md`).
 - [ ] **Delay simulation produces a backup route.** Call
-      `simulate_route_disruption` on `route_bus_market`'s
-      `seg_bus_market_crossing_center` with a 15-minute delay and confirm
-      `suggested_backup_route_id` is populated.
+      `simulate_route_disruption` on `route_tram_4`'s `seg_tram4_ride`
+      with a 15-minute delay and confirm `suggested_backup_route_id` is
+      populated with `route_metro_51`.
 - [ ] **Activity log distinguishes suggestions, drafts, and confirmed
       actions.** Run a full flow (find, compare, draft, save) and confirm
       the activity log shows different kinds/labels for a read, a
@@ -137,11 +160,11 @@ await tool.execute({ max_fare: 8 });
       with no WebMCP support at all (regular Chrome/Firefox/Safari with no
       flags). Every planning action should still be reachable through
       on-page buttons and forms.
-- [ ] **The city pack can be replaced without changing the route-engine
-      API.** Confirm `src/lib/city-packs/harbor-city.ts` exists, passes
-      `validateCityPack` with an empty result array, and that
-      `src/lib/route-engine.ts` takes a `CityPack` as a plain parameter
-      with no Aurora-specific branching.
+- [ ] **The Amsterdam city pack is the current demo pack.** Confirm the
+      Amsterdam pack is the only city pack, with the three current routes:
+      Metro 52 plus walk from Europaplein, Metro 51 to Station RAI, and Tram
+      4 to the door. Confirm `src/lib/route-engine.ts` takes a `CityPack` as
+      a plain parameter with no city-specific branching.
 
 ### Submission
 

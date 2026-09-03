@@ -9,10 +9,10 @@ describe("city packs", () => {
     }
   });
 
-  it("getCityPack('demo_city') returns Aurora City", () => {
-    const city = getCityPack("demo_city");
+  it("getCityPack('amsterdam_centrum_rai') returns Amsterdam", () => {
+    const city = getCityPack("amsterdam_centrum_rai");
     expect(city).toBeDefined();
-    expect(city?.name).toBe("Aurora City");
+    expect(city?.name).toBe("Amsterdam");
     expect(city).toBe(defaultCityPack);
   });
 
@@ -29,20 +29,25 @@ describe("city packs", () => {
     }
   });
 
-  it("aurora's bus route has an active delay report at clockAt", () => {
-    const aurora = getCityPack("demo_city")!;
-    const clockAt = new Date(aurora.defaultTrip.clockAt).getTime();
-    const busRoute = aurora.routeOptions.find((route) => route.id === "route_bus_market")!;
-    const busRouteSegmentIds = new Set(busRoute.segments.map((segment) => segment.id));
+  it("geometry feature counts land in the 400-900 target range with detail zones and a parseable export date", () => {
+    const amsterdam = getCityPack("amsterdam_centrum_rai")!;
+    const { geometry } = amsterdam;
+    expect(geometry.features.length).toBeGreaterThanOrEqual(400);
+    expect(geometry.features.length).toBeLessThanOrEqual(900);
+    expect(geometry.detailZones.length).toBeGreaterThanOrEqual(4);
+    expect(Number.isNaN(Date.parse(geometry.source.exportedAt))).toBe(false);
+  });
 
-    const activeDelayReport = aurora.reports.find((report) => {
-      if (report.category !== "delay") return false;
-      if (!busRouteSegmentIds.has(report.segmentId)) return false;
+  it("both seed reports on the Amsterdam pack are active at the default trip's clockAt", () => {
+    const amsterdam = getCityPack("amsterdam_centrum_rai")!;
+    const trip = amsterdam.trips.find((t) => t.id === amsterdam.defaultTripId)!;
+    const clockAt = new Date(trip.clockAt).getTime();
+
+    for (const report of amsterdam.reports) {
       const observedAt = new Date(report.observedAt).getTime();
       const expiresAt = new Date(report.expiresAt).getTime();
-      return observedAt <= clockAt && clockAt < expiresAt;
-    });
-
-    expect(activeDelayReport).toBeDefined();
+      const active = observedAt <= clockAt && clockAt < expiresAt;
+      expect(active, `report ${report.id} should be active at clockAt`).toBe(true);
+    }
   });
 });

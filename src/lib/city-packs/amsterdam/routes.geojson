@@ -1,0 +1,973 @@
+{
+ "type": "FeatureCollection",
+ "name": "routeroom_routes",
+ "provenance": {
+  "city_pack": "amsterdam_centrum_rai",
+  "generated_by": "scripts/export-overlays.ts",
+  "curated_at": "2026-09-03",
+  "geometry_source": "© OpenStreetMap contributors",
+  "geometry_license": "ODbL-1.0",
+  "geometry_exported_at": "2026-09-03T15:46:35.347Z",
+  "note": "Curated snapshot for the RouteRoom demo. Not live directions. Mapbox renders the basemap only."
+ },
+ "features": [
+  {
+   "type": "Feature",
+   "id": "seg_metro52_walk_to_platform",
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      4.9003,
+      52.3791
+     ],
+     [
+      4.9007,
+      52.3786
+     ],
+     [
+      4.90075,
+      52.3781
+     ]
+    ]
+   },
+   "properties": {
+    "segment_id": "seg_metro52_walk_to_platform",
+    "route_id": "route_metro_52",
+    "route_name": "Metro 52 + walk from Europaplein",
+    "mode": "walk",
+    "is_walk": true,
+    "label": "Walk to the Centraal metro entrance",
+    "line_name": null,
+    "operator": null,
+    "from_landmark_id": "centraal_station",
+    "to_landmark_id": "centraal_metro_platform",
+    "distance_meters": 118,
+    "has_stairs": false,
+    "covered": true,
+    "accessibility": "clear",
+    "rain_exposure": "low"
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "seg_metro52_ride",
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      4.9003,
+      52.3791
+     ],
+     [
+      4.900879,
+      52.379208
+     ],
+     [
+      4.899714,
+      52.378012
+     ],
+     [
+      4.899464,
+      52.377676
+     ],
+     [
+      4.898808,
+      52.377017
+     ],
+     [
+      4.898472,
+      52.376743
+     ],
+     [
+      4.89812,
+      52.376514
+     ],
+     [
+      4.896703,
+      52.375801
+     ],
+     [
+      4.895991,
+      52.375303
+     ],
+     [
+      4.89354,
+      52.373362
+     ],
+     [
+      4.893182,
+      52.372937
+     ],
+     [
+      4.892993,
+      52.372504
+     ],
+     [
+      4.892896,
+      52.37105
+     ],
+     [
+      4.892587,
+      52.369688
+     ],
+     [
+      4.89256,
+      52.369314
+     ],
+     [
+      4.892718,
+      52.368816
+     ],
+     [
+      4.893392,
+      52.367821
+     ],
+     [
+      4.893481,
+      52.367496
+     ],
+     [
+      4.893474,
+      52.367167
+     ],
+     [
+      4.89306,
+      52.365631
+     ],
+     [
+      4.892117,
+      52.362905
+     ],
+     [
+      4.8913,
+      52.3609
+     ],
+     [
+      4.890938,
+      52.359726
+     ],
+     [
+      4.890827,
+      52.359037
+     ],
+     [
+      4.890794,
+      52.357734
+     ],
+     [
+      4.890374,
+      52.355095
+     ],
+     [
+      4.890375,
+      52.354796
+     ],
+     [
+      4.890451,
+      52.35447
+     ],
+     [
+      4.891173,
+      52.352635
+     ],
+     [
+      4.891322,
+      52.35215
+     ],
+     [
+      4.891519,
+      52.349772
+     ],
+     [
+      4.89148,
+      52.349188
+     ],
+     [
+      4.890862,
+      52.344395
+     ],
+     [
+      4.890926,
+      52.3439
+     ],
+     [
+      4.89143,
+      52.341922
+     ],
+     [
+      4.8905,
+      52.3417
+     ]
+    ]
+   },
+   "properties": {
+    "segment_id": "seg_metro52_ride",
+    "route_id": "route_metro_52",
+    "route_name": "Metro 52 + walk from Europaplein",
+    "mode": "metro",
+    "is_walk": false,
+    "label": "Metro 52 to Europaplein",
+    "line_name": "Metro 52",
+    "operator": "GVB",
+    "from_landmark_id": "centraal_metro_platform",
+    "to_landmark_id": "europaplein_station",
+    "distance_meters": 4482,
+    "has_stairs": false,
+    "covered": true,
+    "accessibility": "clear",
+    "rain_exposure": "low"
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "seg_metro52_walk_to_entrance",
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      4.8905,
+      52.3417
+     ],
+     [
+      4.8899,
+      52.3423
+     ],
+     [
+      4.8882,
+      52.3417
+     ],
+     [
+      4.8872,
+      52.3409
+     ],
+     [
+      4.8875,
+      52.3405
+     ]
+    ]
+   },
+   "properties": {
+    "segment_id": "seg_metro52_walk_to_entrance",
+    "route_id": "route_metro_52",
+    "route_name": "Metro 52 + walk from Europaplein",
+    "mode": "walk",
+    "is_walk": true,
+    "label": "Walk from Europaplein to the RAI",
+    "line_name": null,
+    "operator": null,
+    "from_landmark_id": "europaplein_station",
+    "to_landmark_id": "rai_main_entrance",
+    "distance_meters": 372,
+    "has_stairs": false,
+    "covered": false,
+    "accessibility": "clear",
+    "rain_exposure": "high"
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "seg_tram4_walk_to_stop",
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      4.9003,
+      52.3791
+     ],
+     [
+      4.8996,
+      52.3789
+     ],
+     [
+      4.899,
+      52.3788
+     ]
+    ]
+   },
+   "properties": {
+    "segment_id": "seg_tram4_walk_to_stop",
+    "route_id": "route_tram_4",
+    "route_name": "Tram 4 to the door",
+    "mode": "walk",
+    "is_walk": true,
+    "label": "Walk to the Centraal tram stop",
+    "line_name": null,
+    "operator": null,
+    "from_landmark_id": "centraal_station",
+    "to_landmark_id": "centraal_tram_stop",
+    "distance_meters": 94,
+    "has_stairs": false,
+    "covered": false,
+    "accessibility": "clear",
+    "rain_exposure": "medium"
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "seg_tram4_ride",
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      4.899,
+      52.3788
+     ],
+     [
+      4.898866,
+      52.378731
+     ],
+     [
+      4.89941,
+      52.378287
+     ],
+     [
+      4.899435,
+      52.37819
+     ],
+     [
+      4.89937,
+      52.378087
+     ],
+     [
+      4.898613,
+      52.37756
+     ],
+     [
+      4.898503,
+      52.377258
+     ],
+     [
+      4.89827,
+      52.377043
+     ],
+     [
+      4.895499,
+      52.374961
+     ],
+     [
+      4.894118,
+      52.373841
+     ],
+     [
+      4.893443,
+      52.373345
+     ],
+     [
+      4.893278,
+      52.373171
+     ],
+     [
+      4.893018,
+      52.372747
+     ],
+     [
+      4.892921,
+      52.372502
+     ],
+     [
+      4.892843,
+      52.371641
+     ],
+     [
+      4.892665,
+      52.370876
+     ],
+     [
+      4.892507,
+      52.370305
+     ],
+     [
+      4.892046,
+      52.369155
+     ],
+     [
+      4.892047,
+      52.368918
+     ],
+     [
+      4.892243,
+      52.368563
+     ],
+     [
+      4.892545,
+      52.36824
+     ],
+     [
+      4.893504,
+      52.367453
+     ],
+     [
+      4.893573,
+      52.367188
+     ],
+     [
+      4.893534,
+      52.367041
+     ],
+     [
+      4.89329,
+      52.366714
+     ],
+     [
+      4.892789,
+      52.364952
+     ],
+     [
+      4.891054,
+      52.36012
+     ],
+     [
+      4.89099,
+      52.359704
+     ],
+     [
+      4.891068,
+      52.359602
+     ],
+     [
+      4.891413,
+      52.359358
+     ],
+     [
+      4.891448,
+      52.359247
+     ],
+     [
+      4.891364,
+      52.359115
+     ],
+     [
+      4.891013,
+      52.358904
+     ],
+     [
+      4.890922,
+      52.358786
+     ],
+     [
+      4.890762,
+      52.357033
+     ],
+     [
+      4.890724,
+      52.356828
+     ],
+     [
+      4.890624,
+      52.356636
+     ],
+     [
+      4.890373,
+      52.354971
+     ],
+     [
+      4.890423,
+      52.35467
+     ],
+     [
+      4.891084,
+      52.352999
+     ],
+     [
+      4.891086,
+      52.352867
+     ],
+     [
+      4.891344,
+      52.352093
+     ],
+     [
+      4.891337,
+      52.351423
+     ],
+     [
+      4.891572,
+      52.350627
+     ],
+     [
+      4.891127,
+      52.347186
+     ],
+     [
+      4.891178,
+      52.347092
+     ],
+     [
+      4.891265,
+      52.347033
+     ],
+     [
+      4.891482,
+      52.346982
+     ],
+     [
+      4.901558,
+      52.34647
+     ],
+     [
+      4.902734,
+      52.34648
+     ],
+     [
+      4.903229,
+      52.34637
+     ],
+     [
+      4.903757,
+      52.346162
+     ],
+     [
+      4.904041,
+      52.34612
+     ],
+     [
+      4.903814,
+      52.346008
+     ],
+     [
+      4.903309,
+      52.345509
+     ],
+     [
+      4.903041,
+      52.345357
+     ],
+     [
+      4.893802,
+      52.342005
+     ],
+     [
+      4.893483,
+      52.341934
+     ],
+     [
+      4.892722,
+      52.341935
+     ],
+     [
+      4.892518,
+      52.341889
+     ],
+     [
+      4.892381,
+      52.341729
+     ],
+     [
+      4.892197,
+      52.340232
+     ],
+     [
+      4.8889,
+      52.3399
+     ]
+    ]
+   },
+   "properties": {
+    "segment_id": "seg_tram4_ride",
+    "route_id": "route_tram_4",
+    "route_name": "Tram 4 to the door",
+    "mode": "tram",
+    "is_walk": false,
+    "label": "Tram 4 to Station RAI (Drentepark)",
+    "line_name": "Tram 4",
+    "operator": "GVB",
+    "from_landmark_id": "centraal_tram_stop",
+    "to_landmark_id": "station_rai_tram_stop",
+    "distance_meters": 6066,
+    "has_stairs": false,
+    "covered": false,
+    "accessibility": "clear",
+    "rain_exposure": "medium"
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "seg_tram4_walk_to_entrance",
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      4.8889,
+      52.3399
+     ],
+     [
+      4.8882,
+      52.3403
+     ],
+     [
+      4.8875,
+      52.3405
+     ]
+    ]
+   },
+   "properties": {
+    "segment_id": "seg_tram4_walk_to_entrance",
+    "route_id": "route_tram_4",
+    "route_name": "Tram 4 to the door",
+    "mode": "walk",
+    "is_walk": true,
+    "label": "Walk from Drentepark to the RAI",
+    "line_name": null,
+    "operator": null,
+    "from_landmark_id": "station_rai_tram_stop",
+    "to_landmark_id": "rai_main_entrance",
+    "distance_meters": 125,
+    "has_stairs": false,
+    "covered": false,
+    "accessibility": "clear",
+    "rain_exposure": "high"
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "seg_metro51_walk_to_platform",
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      4.9003,
+      52.3791
+     ],
+     [
+      4.9007,
+      52.3786
+     ],
+     [
+      4.90075,
+      52.3781
+     ]
+    ]
+   },
+   "properties": {
+    "segment_id": "seg_metro51_walk_to_platform",
+    "route_id": "route_metro_51",
+    "route_name": "Metro 51 to Station RAI",
+    "mode": "walk",
+    "is_walk": true,
+    "label": "Walk to the Centraal metro entrance",
+    "line_name": null,
+    "operator": null,
+    "from_landmark_id": "centraal_station",
+    "to_landmark_id": "centraal_metro_platform",
+    "distance_meters": 118,
+    "has_stairs": false,
+    "covered": true,
+    "accessibility": "clear",
+    "rain_exposure": "low"
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "seg_metro51_ride",
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      4.9003,
+      52.3791
+     ],
+     [
+      4.900879,
+      52.379208
+     ],
+     [
+      4.899714,
+      52.378012
+     ],
+     [
+      4.899464,
+      52.377676
+     ],
+     [
+      4.898808,
+      52.377017
+     ],
+     [
+      4.898472,
+      52.376743
+     ],
+     [
+      4.89812,
+      52.376514
+     ],
+     [
+      4.896703,
+      52.375801
+     ],
+     [
+      4.895991,
+      52.375303
+     ],
+     [
+      4.893513,
+      52.373337
+     ],
+     [
+      4.893165,
+      52.372909
+     ],
+     [
+      4.892981,
+      52.372452
+     ],
+     [
+      4.892896,
+      52.37105
+     ],
+     [
+      4.892587,
+      52.369688
+     ],
+     [
+      4.89256,
+      52.369314
+     ],
+     [
+      4.892718,
+      52.368816
+     ],
+     [
+      4.893392,
+      52.367821
+     ],
+     [
+      4.893481,
+      52.367496
+     ],
+     [
+      4.893474,
+      52.367167
+     ],
+     [
+      4.89306,
+      52.365631
+     ],
+     [
+      4.892117,
+      52.362905
+     ],
+     [
+      4.8913,
+      52.3609
+     ],
+     [
+      4.890938,
+      52.359726
+     ],
+     [
+      4.890827,
+      52.359037
+     ],
+     [
+      4.890794,
+      52.357734
+     ],
+     [
+      4.890368,
+      52.355006
+     ],
+     [
+      4.89046,
+      52.354441
+     ],
+     [
+      4.891264,
+      52.352371
+     ],
+     [
+      4.891395,
+      52.351612
+     ],
+     [
+      4.891512,
+      52.349996
+     ],
+     [
+      4.891509,
+      52.349468
+     ],
+     [
+      4.890863,
+      52.344351
+     ],
+     [
+      4.890915,
+      52.343947
+     ],
+     [
+      4.891136,
+      52.343071
+     ],
+     [
+      4.89116,
+      52.342746
+     ],
+     [
+      4.891757,
+      52.340367
+     ],
+     [
+      4.891763,
+      52.339979
+     ],
+     [
+      4.891649,
+      52.339627
+     ],
+     [
+      4.891469,
+      52.339348
+     ],
+     [
+      4.891244,
+      52.339117
+     ],
+     [
+      4.890961,
+      52.338906
+     ],
+     [
+      4.89062,
+      52.33872
+     ],
+     [
+      4.890263,
+      52.338577
+     ],
+     [
+      4.88977,
+      52.338445
+     ],
+     [
+      4.889552,
+      52.338406
+     ],
+     [
+      4.888828,
+      52.338355
+     ],
+     [
+      4.888375,
+      52.338375
+     ],
+     [
+      4.887882,
+      52.338455
+     ],
+     [
+      4.885333,
+      52.339064
+     ],
+     [
+      4.883522,
+      52.339353
+     ],
+     [
+      4.882399,
+      52.339433
+     ],
+     [
+      4.880163,
+      52.339402
+     ],
+     [
+      4.881219,
+      52.339482
+     ],
+     [
+      4.882154,
+      52.339494
+     ],
+     [
+      4.882798,
+      52.339467
+     ],
+     [
+      4.884646,
+      52.339309
+     ],
+     [
+      4.885618,
+      52.33912
+     ],
+     [
+      4.88686,
+      52.33878
+     ],
+     [
+      4.887921,
+      52.338397
+     ],
+     [
+      4.888711,
+      52.338081
+     ],
+     [
+      4.889338,
+      52.33779
+     ],
+     [
+      4.8895,
+      52.3379
+     ]
+    ]
+   },
+   "properties": {
+    "segment_id": "seg_metro51_ride",
+    "route_id": "route_metro_51",
+    "route_name": "Metro 51 to Station RAI",
+    "mode": "metro",
+    "is_walk": false,
+    "label": "Metro 51 to Station RAI",
+    "line_name": "Metro 51",
+    "operator": "GVB",
+    "from_landmark_id": "centraal_metro_platform",
+    "to_landmark_id": "station_rai",
+    "distance_meters": 6220,
+    "has_stairs": false,
+    "covered": true,
+    "accessibility": "clear",
+    "rain_exposure": "low"
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "seg_metro51_walk_to_entrance",
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      4.8895,
+      52.3379
+     ],
+     [
+      4.8883,
+      52.3387
+     ],
+     [
+      4.8872,
+      52.3394
+     ]
+    ]
+   },
+   "properties": {
+    "segment_id": "seg_metro51_walk_to_entrance",
+    "route_id": "route_metro_51",
+    "route_name": "Metro 51 to Station RAI",
+    "mode": "walk",
+    "is_walk": true,
+    "label": "Walk from Station RAI to entrance P1",
+    "line_name": null,
+    "operator": null,
+    "from_landmark_id": "station_rai",
+    "to_landmark_id": "rai_p1_entrance",
+    "distance_meters": 228,
+    "has_stairs": false,
+    "covered": false,
+    "accessibility": "clear",
+    "rain_exposure": "medium"
+   }
+  }
+ ]
+}

@@ -5,21 +5,95 @@
  * planner store, the UI panels, the 3D scene, and the WebMCP tool layer.
  * Every layer talks in these shapes so an agent and a human always operate on
  * the same live state.
+ *
+ * Geometry rule (ADR 0005): city packs carry real-world coordinates as
+ * [longitude, latitude]. The scene projects them; it never stores its own.
  */
 
-export type TransportMode = "walk" | "tram" | "bus" | "metro" | "bike" | "ferry";
+export type TransportMode = "walk" | "tram" | "bus" | "metro" | "train" | "bike" | "ferry";
 
 export type Priority = "low" | "medium" | "high";
 export type Reliability = "low" | "medium" | "high";
 export type Accessibility = "unknown" | "clear" | "caution" | "blocked";
 export type RainExposure = "low" | "medium" | "high" | "unknown";
 
-/** [x, y, z] in scene units. y is up. */
+/** [longitude, latitude] in WGS84 degrees. */
+export type LngLat = [number, number];
+
+/** [x, y, z] in scene units after projection. y is up. Never stored in a pack. */
 export type Point3 = [number, number, number];
+
+// ---------------------------------------------------------------------------
+// City-pack geometry (ADR 0005, ADR 0006)
+// ---------------------------------------------------------------------------
+
+export type GeometryFeatureKind =
+  | "building"
+  | "merged_block"
+  | "road"
+  | "rail"
+  | "water"
+  | "park"
+  | "plaza"
+  | "platform";
+
+export type GeometryFeature = {
+  id: string;
+  kind: GeometryFeatureKind;
+  /**
+   * Polygon outer ring for areas (building, merged_block, water, park, plaza,
+   * platform) or a polyline for lines (road, rail). Longitude, latitude.
+   */
+  coordinates: LngLat[];
+  /** True for road and rail polylines. */
+  isLine?: boolean;
+  /** Extrusion height for building and merged_block. */
+  heightMeters?: number;
+  /** Line width for road and rail, in meters. */
+  widthMeters?: number;
+  name?: string;
+  /** Set when the feature lies inside a detail zone. */
+  detailZoneId?: string;
+};
+
+export type DetailZoneReason = "origin" | "transfer" | "station" | "walking" | "entrance" | "destination";
+
+export type DetailZone = {
+  id: string;
+  name: string;
+  center: LngLat;
+  radiusMeters: number;
+  reason: DetailZoneReason;
+};
+
+export type GeometrySource = {
+  provider: "openstreetmap";
+  /** Verbatim attribution string to display. */
+  attribution: string;
+  license: "ODbL-1.0";
+  /** ISO date of the export. */
+  exportedAt: string;
+  /** Overpass bounding boxes or query summary used for the export. */
+  notes: string[];
+};
+
+export type CityGeometry = {
+  /** Projection origin. Scene (0, 0) is here. */
+  center: LngLat;
+  bounds: { west: number; south: number; east: number; north: number };
+  features: GeometryFeature[];
+  detailZones: DetailZone[];
+  source: GeometrySource;
+};
+
+// ---------------------------------------------------------------------------
+// Places, segments, routes
+// ---------------------------------------------------------------------------
 
 export type LandmarkKind =
   | "origin"
   | "station"
+  | "stop"
   | "venue"
   | "building"
   | "park"
@@ -30,38 +104,23 @@ export type Landmark = {
   id: string;
   name: string;
   kind: LandmarkKind;
-  position: Point3;
+  position: LngLat;
   /** Short plain-language note shown in callouts, e.g. "Step-free entrance on the north side". */
   description?: string;
-};
-
-export type SceneFeatureKind = "building" | "park" | "water" | "road" | "plaza";
-
-export type SceneFeature = {
-  id: string;
-  name: string;
-  kind: SceneFeatureKind;
-  /** Center of the footprint. For buildings y is ignored and the box sits on the ground. */
-  position: Point3;
-  /** [width, height, depth] */
-  size: Point3;
-  color: string;
-  /** Optional roof accent colour for buildings. */
-  roofColor?: string;
-  /** Rotation around Y in radians. */
-  rotationY?: number;
+  /** OSM node or way id when the landmark comes from the export, for provenance. */
+  osmId?: string;
 };
 
 export type RouteSegment = {
   id: string;
   mode: TransportMode;
-  /** Short label, e.g. "Tram 4 to North Gate". */
+  /** Short label, e.g. "Metro 52 to Europaplein". */
   label: string;
   /** Landmark ids. */
   fromLandmarkId: string;
   toLandmarkId: string;
-  /** Scene polyline for this segment. First point = from, last point = to. */
-  points: Point3[];
+  /** Real-world polyline for this segment. First point = from, last point = to. */
+  path: LngLat[];
   durationMin: number;
   durationMax: number;
   distanceMeters: number;
@@ -75,6 +134,8 @@ export type RouteSegment = {
   covered: boolean;
   /** Transit line name when mode is not walk/bike. */
   lineName?: string;
+  /** Operator for transit legs, e.g. "GVB". */
+  operator?: string;
   notes: string[];
 };
 
@@ -98,7 +159,6 @@ export type RouteOption = {
   /** ISO timestamp of the newest evidence behind this option. */
   evidenceUpdatedAt: string;
   tradeoffs: string[];
-  primaryColor: string;
 };
 
 export type ReportCategory = "delay" | "blocked_path" | "accessibility" | "crowding" | "weather" | "other";
@@ -118,7 +178,15 @@ export type RouteReport = {
   source: "seed" | "user";
 };
 
-export type DefaultTrip = {
+/**
+ * A trip a city pack ships with: fixed origin, destination, deadline, and the
+ * curated route options for it. RouteRoom compares a trip's route options; it
+ * does not compute routes between arbitrary places.
+ */
+export type Trip = {
+  id: string;
+  name: string;
+  description: string;
   originId: string;
   destinationId: string;
   /**
@@ -129,6 +197,17 @@ export type DefaultTrip = {
   /** ISO with offset, in the city pack timezone. */
   departAt: string;
   arrivalDeadline: string;
+  routeOptionIds: string[];
+};
+
+/** Provenance for the curated route data, distinct from the geometry source. */
+export type CuratedSnapshot = {
+  /** ISO date the route options were last reviewed. */
+  curatedAt: string;
+  /** Public sources consulted, e.g. operator timetables. Plain text. */
+  sources: string[];
+  /** Plain-language caveats, e.g. "Fares are the operator's standard single fare as of the curation date." */
+  notes: string[];
 };
 
 export type CityPack = {
@@ -142,12 +221,15 @@ export type CityPack = {
   /** BCP 47, e.g. "en-NL". Used for number/time formatting. */
   locale: string;
   description: string;
+  /** Display strings, geometry attribution first. */
   attribution: string[];
+  geometry: CityGeometry;
   landmarks: Landmark[];
-  sceneFeatures: SceneFeature[];
   routeOptions: RouteOption[];
   reports: RouteReport[];
-  defaultTrip: DefaultTrip;
+  trips: Trip[];
+  defaultTripId: string;
+  snapshot: CuratedSnapshot;
 };
 
 export type Preferences = {
@@ -163,6 +245,7 @@ export type Preferences = {
 
 export type TripContext = {
   cityId: string;
+  tripId: string;
   originId: string;
   destinationId: string;
   departAt: string;
@@ -261,7 +344,7 @@ export type ComparisonCriterion =
 export type ComparisonCell = {
   /** Numeric value used for ranking. Higher is better for every criterion. */
   value: number;
-  /** Human readable, e.g. "3.8–5.0 EUR". */
+  /** Human readable, e.g. "3.40 EUR". */
   display: string;
   /** 1 = best among compared routes. */
   rank: number;
@@ -343,6 +426,7 @@ export type ActivityEvent = {
 
 export type RoutePlanDraft = {
   id: string;
+  tripId: string;
   primaryRouteId: string;
   backupRouteId?: string;
   backupTrigger: string;

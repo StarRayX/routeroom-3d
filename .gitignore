@@ -6,3 +6,5 @@ out/
 *.log
 coverage/
 *.tsbuildinfo
+scripts/.cache/
+artifacts/screenshots/
