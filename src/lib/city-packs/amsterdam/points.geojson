@@ -1,0 +1,195 @@
+{
+ "type": "FeatureCollection",
+ "name": "routeroom_points",
+ "provenance": {
+  "city_pack": "amsterdam_centrum_rai",
+  "generated_by": "scripts/export-overlays.ts",
+  "curated_at": "2026-09-03",
+  "geometry_source": "© OpenStreetMap contributors",
+  "geometry_license": "ODbL-1.0",
+  "geometry_exported_at": "2026-09-03T15:46:35.347Z",
+  "note": "Curated snapshot for the RouteRoom demo. Not live directions. Mapbox renders the basemap only."
+ },
+ "features": [
+  {
+   "type": "Feature",
+   "id": "centraal_station",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.9003,
+     52.3791
+    ]
+   },
+   "properties": {
+    "landmark_id": "centraal_station",
+    "name": "Amsterdam Centraal",
+    "kind": "origin",
+    "description": "Main rail hub where the demo trip begins.",
+    "osm_id": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "centraal_metro_platform",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.90075,
+     52.3781
+    ]
+   },
+   "properties": {
+    "landmark_id": "centraal_metro_platform",
+    "name": "Centraal metro entrance",
+    "kind": "entrance",
+    "description": "Step-free entrance beneath Centraal for the Noord/Zuidlijn (Metro 52 and 51).",
+    "osm_id": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "centraal_tram_stop",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.899,
+     52.3788
+    ]
+   },
+   "properties": {
+    "landmark_id": "centraal_tram_stop",
+    "name": "Centraal tram stop",
+    "kind": "stop",
+    "description": "Tram stop on Stationsplein outside Centraal.",
+    "osm_id": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "europaplein_station",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.8905,
+     52.3417
+    ]
+   },
+   "properties": {
+    "landmark_id": "europaplein_station",
+    "name": "Europaplein",
+    "kind": "station",
+    "description": "Metro 52 station, lifts to street level.",
+    "osm_id": "node/5737467956"
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "europaplein_tram_stop",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.8912,
+     52.3413
+    ]
+   },
+   "properties": {
+    "landmark_id": "europaplein_tram_stop",
+    "name": "Europaplein tram stop",
+    "kind": "stop",
+    "description": "Tram stop on Europaboulevard near the Europaplein interchange.",
+    "osm_id": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "station_rai",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.8895,
+     52.3379
+    ]
+   },
+   "properties": {
+    "landmark_id": "station_rai",
+    "name": "Station RAI",
+    "kind": "station",
+    "description": "Metro 50/51 and trains, step-free.",
+    "osm_id": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "station_rai_tram_stop",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.8889,
+     52.3399
+    ]
+   },
+   "properties": {
+    "landmark_id": "station_rai_tram_stop",
+    "name": "Amsterdam, Station RAI (Drentepark)",
+    "kind": "stop",
+    "description": "Tram 4 terminus at the venue, on Drentepark.",
+    "osm_id": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "rai_main_entrance",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.8875,
+     52.3405
+    ]
+   },
+   "properties": {
+    "landmark_id": "rai_main_entrance",
+    "name": "RAI main entrance",
+    "kind": "entrance",
+    "description": "Main entrance on Europaplein.",
+    "osm_id": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "rai_p1_entrance",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.8872,
+     52.3394
+    ]
+   },
+   "properties": {
+    "landmark_id": "rai_p1_entrance",
+    "name": "RAI entrance P1",
+    "kind": "entrance",
+    "description": "Pedestrian entrance P1 (Voetgangersingang RAI P1).",
+    "osm_id": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "rai_convention_centre",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.888,
+     52.341
+    ]
+   },
+   "properties": {
+    "landmark_id": "rai_convention_centre",
+    "name": "RAI convention centre",
+    "kind": "venue",
+    "description": "Destination venue for the 08:30 event.",
+    "osm_id": null
+   }
+  }
+ ]
+}

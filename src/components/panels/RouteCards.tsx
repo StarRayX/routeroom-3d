@@ -2,6 +2,7 @@
 
 import { usePlanner } from "@/lib/planner-context";
 import { formatFareRange, formatMeters, formatMinutesRange, formatRelative } from "@/lib/format";
+import { RouteWhy } from "./RouteWhy";
 import type { DeadlineStatus } from "@/lib/types";
 
 const DEADLINE_LABEL: Record<DeadlineStatus, string> = {
@@ -15,11 +16,13 @@ export function RouteCards() {
   const city = usePlanner((s) => s.city);
   const now = usePlanner((s) => s.now);
   const ranked = usePlanner((s) => s.ranked);
+  const comparison = usePlanner((s) => s.comparison);
+  const critique = usePlanner((s) => s.critique);
   const primaryRouteId = usePlanner((s) => s.primaryRouteId);
   const backupRouteId = usePlanner((s) => s.backupRouteId);
   const showRoute = usePlanner((s) => s.showRoute);
   const selectBackup = usePlanner((s) => s.selectBackup);
-  const critiqueRoute = usePlanner((s) => s.critiqueRoute);
+  const inspect = usePlanner((s) => s.inspect);
 
   return (
     <div className="route-cards" aria-label="Ranked route options">
@@ -29,13 +32,13 @@ export function RouteCards() {
         const isBackup = route.id === backupRouteId;
         const hasViolations = !entry.constraints.satisfied;
         const stateClass = [isPrimary ? "is-primary" : "", isBackup ? "is-backup" : "", hasViolations ? "has-violations" : ""].filter(Boolean).join(" ");
+        const comparisonRow = comparison.rows.find((row) => row.routeId === route.id);
+        const firstSegmentId = route.segments[0]?.id;
 
         return (
           <article key={route.id} className={`card route-card ${stateClass}`}>
             <div className="route-card-head">
-              <span className="rank-badge" style={{ backgroundColor: route.primaryColor }}>
-                {entry.rank}
-              </span>
+              <span className="rank-badge">{entry.rank}</span>
               <div className="route-card-title">
                 <strong>{route.name}</strong>
                 <span>{route.summary}</span>
@@ -59,6 +62,7 @@ export function RouteCards() {
               </span>
               <span className="route-card-confidence">{Math.round(route.confidence * 100)}% confidence</span>
               <span className="route-card-freshness">Evidence {formatRelative(route.evidenceUpdatedAt, new Date(now))}</span>
+              <span className="badge badge-slate">Curated</span>
             </div>
 
             {hasViolations && (
@@ -84,10 +88,15 @@ export function RouteCards() {
               <button type="button" className="secondary-button" onClick={() => selectBackup(isBackup ? undefined : route.id, "human")}>
                 {isBackup ? "Remove as backup" : "Set as backup"}
               </button>
-              <button type="button" className="text-button" onClick={() => critiqueRoute(route.id, "human")}>
-                Why not?
+              <button type="button" className="text-button" disabled={!firstSegmentId} onClick={() => firstSegmentId && inspect(route.id, firstSegmentId, "human")}>
+                Inspect
               </button>
             </div>
+
+            <details className="route-card-why">
+              <summary>Why</summary>
+              <RouteWhy city={city} entry={entry} comparisonRow={comparisonRow} critique={critique} />
+            </details>
           </article>
         );
       })}

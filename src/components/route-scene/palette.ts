@@ -1,56 +1,68 @@
 /**
- * Shared colour constants for the 3D scene (SceneContent) and the 2D SVG
- * fallback (RouteMap2D), so both renderers read as the same product.
+ * Shared colour constants for the 2D SVG fallback (RouteMap2D). Restrained
+ * neutral palette: warm off-white ground and buildings, a single strong
+ * accent for the primary route, a slate backup, and amber reserved strictly
+ * for hazards (stairs, delays, reports, disruption). Candidates read as
+ * dashed neutral gray rather than a third hue, so the accent stays legible.
  *
- * Soft pastel low-poly isometric palette: cream/sand ground, muted greens,
- * dusty blue water, warm gray buildings.
+ * This mirrors the colours the Mapbox layer definitions use
+ * (src/components/mapbox/style.ts), so the 2D fallback and the 3D map read
+ * as the same product.
  */
 
 import type { LandmarkKind } from "@/lib/types";
 
 export const PALETTE = {
-  background: "#e9e4d8",
-  fog: "#e9e4d8",
+  ground: "#f7f5f0",
 
-  ground: "#ddd3ba",
-  groundEdge: "#cfc3a1",
+  buildingWall: "#efece5",
+  buildingRoof: "#dedbd3",
 
-  water: "#7fa8b0",
-  waterDeep: "#6d97a0",
+  mergedBlockWall: "#f0eee9",
+  mergedBlockRoof: "#e6e3dc",
 
-  park: "#8aab7c",
-  parkTrunk: "#7c6a4e",
-  parkFoliage: "#6f9a6a",
+  road: "#e7e4dd",
+  rail: "#d6d2c9",
+  water: "#d7dfe3",
+  park: "#dfe6d6",
+  plaza: "#ece9e1",
 
-  road: "#7d766a",
-  roadLine: "#d8d0b8",
+  /** The one strong colour in the scene: the primary route. */
+  routeAccent: "#d9603b",
+  /** Backup route. */
+  routeBackup: "#5c6f80",
+  /** Candidate routes: dashed, low-opacity, no competing hue. */
+  routeCandidate: "#b9b5ad",
 
-  plaza: "#e2d8c0",
+  /** Reserved strictly for hazards: stairs, delays, reports, disruption pulses. */
+  hazardAmber: "#d9a441",
 
-  buildingDefault: "#b3a68e",
-  roofDefault: "#8f7f68",
+  focusHalo: "#ffffff",
 
-  candidateRoute: "#9aa39f",
-  focusHalo: "#fff5dc",
-  reportMarker: "#d9603b",
-  disruption: "#e0a23a",
-  transferMarker: "#4f5d5a",
-  stairsMarker: "#d9a441",
-
-  /** Neutral ink used for the legend's generic route-style swatches. */
-  legendInk: "#3f5148",
+  /** Small dark ink used for landmark pins and map labels. */
+  landmarkInk: "#2b3136",
 } as const;
 
+/** Candidate route opacity when nothing is focused. */
+export const CANDIDATE_OPACITY = 0.6;
+/** Candidate route opacity once some segment is focused, so it recedes. */
+export const CANDIDATE_DIMMED_OPACITY = 0.3;
+
+/**
+ * Every landmark kind is neutral ink except venue and entrance, which take
+ * the route accent since those are the kinds a routed trip actually ends at.
+ */
 export const LANDMARK_ACCENTS: Record<LandmarkKind, string> = {
-  origin: "#3f8f92",
-  venue: "#d97757",
-  station: "#5c7d99",
-  entrance: "#d9a441",
-  crossing: "#8a8f8c",
-  park: "#6f9a6a",
-  building: "#9c8f76",
+  origin: PALETTE.landmarkInk,
+  station: PALETTE.landmarkInk,
+  stop: PALETTE.landmarkInk,
+  building: PALETTE.landmarkInk,
+  park: PALETTE.landmarkInk,
+  crossing: PALETTE.landmarkInk,
+  venue: PALETTE.routeAccent,
+  entrance: PALETTE.routeAccent,
 };
 
 export function landmarkAccent(kind: LandmarkKind): string {
-  return LANDMARK_ACCENTS[kind] ?? PALETTE.buildingDefault;
+  return LANDMARK_ACCENTS[kind] ?? PALETTE.landmarkInk;
 }

@@ -13,6 +13,26 @@ current Chrome and OpenAI documentation before recording anything official:
 - [WebMCP specification](https://webmachinelearning.github.io/webmcp/)
 - [ChatGPT Learn: Site tools/WebMCP](https://learn.chatgpt.com/docs/webmcp)
 
+## Verification status (honest record)
+
+Last updated: 2026-09-03.
+
+**Not yet verified in a WebMCP-capable browser.** No build of Chrome Canary or Chrome Dev with the WebMCP flag, and no ChatGPT browser, has been available on the development machine. Only standard Chrome (no `document.modelContext`) and the Claude Code embedded browser were used.
+
+What has been verified so far, and how:
+
+- All 21 tools build, validate input, and return structured results, exercised through the `window.__routeroomTools` testing surface and the in-page tool console in the Claude Code embedded browser (`document.modelContext` was `undefined` there).
+- The confirmation gate was exercised end to end through that surface: `save_route_plan` returned `confirmation_required`, a human click on Confirm committed the save, and a second call returned `already_saved`.
+- `registerWebMcpTools` detects `document.modelContext.registerTool` at the top level and reports `unavailable` otherwise; the status pill shows "Human mode" in a browser without WebMCP.
+
+What remains unverified and must be recorded here once a capable browser is available:
+
+- That `document.modelContext.registerTool` accepts the exact object shape we pass (`name`, `title`, `description`, `inputSchema`, `annotations`, `execute`) and the `{ signal }` second argument.
+- That tools appear in the browser tool list on initial page load without a click.
+- That an agent in that browser can call a tool and the page updates.
+
+Do not describe the WebMCP integration as validated in the README, the demo video, or the submission until the three items above have been checked and this section is updated with the browser name, version, and date.
+
 ## Setting up a WebMCP-capable browser
 
 ### Chrome

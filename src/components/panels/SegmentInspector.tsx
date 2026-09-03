@@ -20,11 +20,11 @@ export function SegmentInspector({ onReportSegment }: SegmentInspectorProps) {
 
   if (!lastInspection) {
     return (
-      <section className="card panel" aria-labelledby="inspector-heading">
+      <div className="drawer-tab-panel">
         <div className="panel-heading compact">
           <div>
             <p className="eyebrow">SEGMENT INSPECTOR</p>
-            <h2 id="inspector-heading">{primaryRoute ? primaryRoute.name : "No route selected"}</h2>
+            <h2>{primaryRoute ? primaryRoute.name : "No route selected"}</h2>
           </div>
         </div>
         {!primaryRoute && <p className="empty-note">No primary route to inspect yet.</p>}
@@ -47,18 +47,18 @@ export function SegmentInspector({ onReportSegment }: SegmentInspectorProps) {
             ))}
           </ol>
         )}
-      </section>
+      </div>
     );
   }
 
   const { segment, fromLandmark, toLandmark, activeReports, evidenceUpdatedAt, isTransfer } = lastInspection;
 
   return (
-    <section className="card panel" aria-labelledby="inspector-heading">
+    <div className="drawer-tab-panel">
       <div className="panel-heading compact">
         <div>
           <p className="eyebrow">SEGMENT INSPECTOR</p>
-          <h2 id="inspector-heading">{segment.label}</h2>
+          <h2>{segment.label}</h2>
         </div>
         <span className="chip">{segment.mode}</span>
       </div>
@@ -108,6 +108,6 @@ export function SegmentInspector({ onReportSegment }: SegmentInspectorProps) {
           Report an issue here
         </button>
       </div>
-    </section>
+    </div>
   );
 }

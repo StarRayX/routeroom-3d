@@ -1,8 +1,24 @@
-# RouteRoom 3D — Global WebMCP Project Design and Implementation Plan
+# RouteRoom 3D: Global WebMCP Project Design and Implementation Plan
+
+## Decisions after the 2026-09-03 grilling checkpoint
+
+A plan-grilling session on 2026-09-03 resolved six open questions. These decisions are authoritative. Where a section below conflicts with them, the decision here wins; the section is marked with a one-line superseded note rather than rewritten, so read this section first. Vocabulary referenced here (city pack, trip, curated snapshot, corridor, detail zone) is defined in [`CONTEXT.md`](./CONTEXT.md).
+
+- **Q1, demo city.** The demo city is a real district: Amsterdam, Centraal Station to the RAI convention centre. Pack id `amsterdam_centrum_rai`. Aurora City and Harbor City are deleted. The product itself stays city-agnostic; Amsterdam is only the demo pack.
+- **Q2, geometry source.** City packs store WGS84 geometry from a one-time OpenStreetMap export committed to the repo, with ODbL attribution and an export date, projected into the scene. No live map provider, no tokens. See [ADR 0005](./docs/adr/0005-city-packs-carry-real-geometry.md).
+- **Q3, scope of routing.** RouteRoom compares a trip's curated route options; it does not route between arbitrary places. `find_place_options` is removed. `find_route_options` loses its `origin`/`destination`/`depart_at` inputs. New tools `list_trips` and `select_trip` are added. The tool count is 22 total. Route data is labelled "curated snapshot," not live directions, with freshness and confidence visible.
+- **Q4, scene coverage.** The scene shows the whole corridor from origin to destination, with level-of-detail zones: detailed block models where a decision happens, merged neutral geometry elsewhere. See [ADR 0006](./docs/adr/0006-level-of-detail-corridor.md).
+- **Q5, palette.** A restrained neutral palette: one accent color for the primary route, slate for the backup route, gray for other candidates, amber reserved for hazards, stairs, delays, and reports.
+- **Q6, default surface.** The focused default surface is the scene, route cards with a "Why" disclosure, priorities, the plan dock, and the confirmation sheet. The segment inspector, disruption simulator, and observations live in a side drawer. The activity log stays collapsed until the first agent action. The tool console sits behind `?debug=1`.
+- **2026-09-03, visual provider.** Mapbox Standard adopted as visual provider, superseding the corridor-merging approach; see [ADR 0007](./docs/adr/0007-mapbox-standard-visual-provider.md).
+
+Demo routes for the Amsterdam trip: `route_metro_52` ("Metro 52 + walk from Europaplein," fastest, step-free, 380 m of outdoor walking at the end, primary by default), `route_tram_4` ("Tram 4 to the door," least walking, slowest, traffic-sensitive, carries a peak-hour delay report), and `route_metro_51` ("Metro 51 to Station RAI," step-free, a short partly covered walk). All three run on GVB and share the same one-hour fare, so the demo's priority flip is about walking distance and luggage, not fare: the human says they have luggage and want under 250 m of walking, the recommendation moves off Metro 52, and the critic surfaces Tram 4's delay report. A simulated 15-minute delay on the chosen route produces a backup.
+
+WebMCP itself has not been verified in a WebMCP-capable browser as of 2026-09-03. Only the in-page tool console and `window.__routeroomTools` have been exercised. Documentation must say this plainly and must not claim validation it does not have.
 
 ## Handoff instructions for Claude
 
-Build a polished, working WebMCP demo called **RouteRoom 3D**. It is a global, city-agnostic product—not an IskoRank, UP Manila, or Philippines-specific app.
+Build a polished, working WebMCP demo called **RouteRoom 3D**. It is a global, city-agnostic product, not an IskoRank, UP Manila, or Philippines-specific app.
 
 The product thesis is:
 
@@ -83,6 +99,8 @@ The first demo should use one concrete city district and one realistic trip. The
 
 ## 4. Product experience
 
+_Superseded on 2026-09-03: see decisions section._
+
 ### Required result
 
 For a valid request, show:
@@ -127,6 +145,8 @@ Use estimates and confidence labels. Do not claim live traffic, exact safety, or
 
 ## 5. 3D map direction
 
+_Superseded on 2026-09-03: see decisions section._
+
 ### Visual target
 
 Use the supplied reference as inspiration: a soft, pastel, low-poly, isometric 3D map with simplified buildings, roads, green spaces, water, and landmarks.
@@ -156,6 +176,8 @@ The map should help answer:
 Do not add 3D merely for spectacle. Every highlighted object should support a decision.
 
 ### Technical scope
+
+_Superseded on 2026-09-03: the scene is Mapbox GL JS v3 with Mapbox Standard, not hand-authored Three.js geometry; see ADR 0007._
 
 Build a single district scene, not a full city. Use React Three Fiber or plain Three.js with local JSON/GeoJSON. Buildings can be simple extrusions from hand-authored polygons. A GLB model is optional.
 
@@ -428,9 +450,11 @@ Use React state, Context, or Zustand. Keep the implementation simple.
 
 ### Core rule
 
-Buttons, forms, and WebMCP tools must invoke the same route-engine functions, validators, and permission checks. WebMCP should expose application capability—not a second simulation of the app.
+Buttons, forms, and WebMCP tools must invoke the same route-engine functions, validators, and permission checks. WebMCP should expose application capability, not a second simulation of the app.
 
 ## 8. City-pack data strategy
+
+_Superseded on 2026-09-03: see decisions section._
 
 The global product should use a portable city-pack schema:
 
@@ -502,7 +526,7 @@ Confirmation copy must describe the exact side effect:
 
 ## 11. Implementation sequence
 
-### Phase 1 — WebMCP proof of life
+### Phase 1: WebMCP proof of life
 
 Create the top-level planner page and register:
 
@@ -512,37 +536,39 @@ Create the top-level planner page and register:
 
 Verify tool discovery in a compatible browser before building visual polish.
 
-### Phase 2 — City pack and route engine
+### Phase 2: City pack and route engine
 
 Add landmarks, route segments, route candidates, confidence, freshness, scoring, constraint checking, and delay simulation. Use local seed data.
 
-### Phase 3 — 3D scene
+### Phase 3: 3D scene
 
 Build the low-poly district scene with buildings, streets, landmarks, route geometry, transfer markers, selected/faded states, camera focus, and a 2D/list fallback.
 
-### Phase 4 — Agentic workflow
+### Phase 4: Agentic workflow
 
 Add route cards, preference controls, tool activity log, segment inspection, critic state, route comparison, and visual updates.
 
-### Phase 5 — Human confirmation
+### Phase 5: Human confirmation
 
 Add draft plan, confirmation panel, save/share behavior, report draft, publish confirmation, and audit events. Confirm that an agent cannot bypass the gates.
 
-### Phase 6 — Deployment and submission materials
+### Phase 6: Deployment and submission materials
 
 Add loading, empty, error, and unsupported-browser states. Deploy to Vercel, Cloudflare, Netlify, or Render. Add a public repository with an open-source license, complete README, and demo video.
 
 ## 12. Three-minute demo script
 
+_Superseded on 2026-09-03: see decisions section._
+
 Keep the video under three minutes with clear narration and no copyrighted music.
 
-### 0:00–0:20 — Problem
+### 0:00-0:20: Problem
 
 “A route is not just a line from A to B. People balance arrival deadlines, cost, walking, transfers, accessibility, weather, and uncertainty.”
 
 Show the low-poly city scene and an empty route room.
 
-### 0:20–0:55 — Initial request
+### 0:20-0:55: Initial request
 
 Ask the agent:
 
@@ -550,23 +576,23 @@ Ask the agent:
 
 Show the WebMCP activity log and route tools being called.
 
-### 0:55–1:25 — Candidate routes
+### 0:55-1:25: Candidate routes
 
 Show three route cards and their colored paths in the 3D scene. Focus on the transfer segment.
 
-### 1:25–1:55 — Critique and uncertainty
+### 1:25-1:55: Critique and uncertainty
 
 The critic identifies that the cheapest route has a recent delay report and a smaller arrival buffer. Show the report’s timestamp and confidence.
 
-### 1:55–2:20 — Human changes intent
+### 1:55-2:20: Human changes intent
 
 The human changes the priority from lowest fare to highest reliability. The agent calls the preference and comparison tools again. The highlighted route changes in the 3D scene.
 
-### 2:20–2:40 — Contingency
+### 2:20-2:40: Contingency
 
 Simulate a 15-minute delay. The agent creates and displays a backup route.
 
-### 2:40–3:00 — Human control
+### 2:40-3:00: Human control
 
 The agent drafts a route plan. The human reviews the exact primary and backup routes and confirms saving. Briefly show that a service report remains a draft until explicitly published.
 
@@ -646,4 +672,4 @@ Relevant implementation conclusions:
 
 ## Final instruction to Claude
 
-Build RouteRoom as a global product with a replaceable city-pack architecture. Use one tightly scoped, reliable demo district rather than pretending to have live global coverage. Get the WebMCP tool surface and the human-agent workflow working first, then add the low-poly 3D polish. The final experience should feel like a person and an agent jointly exploring and negotiating a route in the same spatial workspace—not like a conventional map with an AI button.
+Build RouteRoom as a global product with a replaceable city-pack architecture. Use one tightly scoped, reliable demo district rather than pretending to have live global coverage. Get the WebMCP tool surface and the human-agent workflow working first, then add the low-poly 3D polish. The final experience should feel like a person and an agent jointly exploring and negotiating a route in the same spatial workspace, not like a conventional map with an AI button.

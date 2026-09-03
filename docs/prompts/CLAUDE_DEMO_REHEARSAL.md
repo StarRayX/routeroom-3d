@@ -21,5 +21,13 @@ Record:
 - visible UI changes after each call
 - any tool-discovery or browser compatibility issue
 - any claim that is not supported by the data
+- which browser and version this rehearsal ran in, and whether
+  `document.modelContext` actually existed on the page in that browser. If it
+  did not, say so on camera and name the fallback used (the in-page tool
+  console or `window.__routeroomTools`) instead of implying WebMCP discovery
+  was confirmed. As of 2026-09-03, WebMCP has not yet been verified in a
+  WebMCP-capable browser; do not narrate or write up this rehearsal as if it
+  has been, until a run against a browser with `document.modelContext`
+  present is actually recorded.
 
 The final video must stay under three minutes. Remove any step that does not strengthen the human-agent collaboration story.

@@ -1,7 +1,9 @@
 node_modules/
 .next/
+*.tsbuildinfo
 out/
 .env*
 !.env.example
 *.log
 coverage/
+scripts/.cache/

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { usePlanner } from "@/lib/planner-context";
 import { useWebMcpTools } from "@/lib/webmcp/useWebMcpTools";
 import { RouteScene, RouteMap2D } from "@/components/route-scene";
@@ -10,21 +10,28 @@ import { TopBar } from "@/components/panels/TopBar";
 import { TripStrip } from "@/components/panels/TripStrip";
 import { RouteCards } from "@/components/panels/RouteCards";
 import { PreferenceControls } from "@/components/panels/PreferenceControls";
-import { ScoreBreakdown } from "@/components/panels/ScoreBreakdown";
-import { ComparisonTable } from "@/components/panels/ComparisonTable";
-import { CritiquePanel } from "@/components/panels/CritiquePanel";
-import { SegmentInspector } from "@/components/panels/SegmentInspector";
-import { DisruptionPanel } from "@/components/panels/DisruptionPanel";
-import { ActivityLog } from "@/components/panels/ActivityLog";
-import { ReportsPanel } from "@/components/panels/ReportsPanel";
 import { PlanDock } from "@/components/panels/PlanDock";
+import { ActivityLog } from "@/components/panels/ActivityLog";
+import { InspectDrawer } from "@/components/panels/InspectDrawer";
 import { ConfirmationPanel } from "@/components/panels/ConfirmationPanel";
 import { ToolConsole } from "@/components/panels/ToolConsole";
+import { AttributionFooter } from "@/components/panels/AttributionFooter";
 import type { RouteReport } from "@/lib/types";
+
+/** Reads `?debug=1` once on mount. Kept as a plain effect (no useSearchParams) so this fully client-rendered page needs no Suspense boundary just to gate the tool console. */
+function useDebugFlag(): boolean {
+  const [debug, setDebug] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setDebug(new URLSearchParams(window.location.search).get("debug") === "1");
+  }, []);
+  return debug;
+}
 
 export function PlannerWorkspace() {
   useShareParam();
   const { status, tools, registered } = useWebMcpTools();
+  const debug = useDebugFlag();
 
   const city = usePlanner((s) => s.city);
   const ranked = usePlanner((s) => s.ranked);
@@ -42,8 +49,6 @@ export function PlannerWorkspace() {
   const inspect = usePlanner((s) => s.inspect);
   const logActivity = usePlanner((s) => s.logActivity);
   const setViewMode = usePlanner((s) => s.setViewMode);
-
-  const [reportPrefillSegmentId, setReportPrefillSegmentId] = useState<string | undefined>(undefined);
 
   const routes = useMemo(() => ranked.map((entry) => entry.route), [ranked]);
 
@@ -90,19 +95,16 @@ export function PlannerWorkspace() {
         </div>
       </section>
 
-      <section className="panel-grid">
-        <PreferenceControls />
-        <ScoreBreakdown />
-        <ComparisonTable />
-        <CritiquePanel />
-        <SegmentInspector onReportSegment={setReportPrefillSegmentId} />
-        <DisruptionPanel />
-        <ActivityLog />
-        <ReportsPanel prefillSegmentId={reportPrefillSegmentId} />
-      </section>
+      <PreferenceControls />
 
       <PlanDock />
-      <ToolConsole tools={tools} status={status} />
+      <ActivityLog />
+
+      {debug && <ToolConsole tools={tools} status={status} />}
+
+      <AttributionFooter />
+
+      <InspectDrawer />
       <ConfirmationPanel />
     </main>
   );

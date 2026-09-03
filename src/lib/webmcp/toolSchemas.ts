@@ -5,7 +5,7 @@
  * against the raw `execute(input)` argument (untrusted, could be anything),
  * and the JSON Schema is what gets registered as `inputSchema` so an agent
  * can see the shape before calling the tool. Keep the two in sync by hand;
- * there are only 21 tools and the extra clarity of a literal JSON Schema
+ * there are only 22 tools and the extra clarity of a literal JSON Schema
  * object is worth the duplication.
  */
 
@@ -20,7 +20,7 @@ export const TOOL_NAMES = [
   // read-only
   "get_city_pack",
   "get_trip_context",
-  "find_place_options",
+  "list_trips",
   "inspect_route_segment",
   "check_route_constraints",
   "compare_route_options",
@@ -30,6 +30,7 @@ export const TOOL_NAMES = [
   "list_saved_plans",
   // reversible
   "find_route_options",
+  "select_trip",
   "set_route_preferences",
   "show_route_on_scene",
   "focus_route_segment",
@@ -66,11 +67,6 @@ const idJsonSchema = (description: string): JsonSchema => ({
   pattern: ID_JSON_PATTERN,
   description,
 });
-
-const querySchema = z
-  .string()
-  .min(1, "query is required.")
-  .max(80, "query must be 80 characters or fewer.");
 
 const priorityValues = ["low", "medium", "high"] as const;
 const priorityEnum = z.enum(priorityValues);
@@ -137,9 +133,6 @@ const preferencePatchFields = {
 
 const findRouteOptionsZod = z
   .object({
-    origin_id: idSchema("origin_id").optional(),
-    destination_id: idSchema("destination_id").optional(),
-    depart_at: isoDateTime.optional(),
     arrival_deadline: isoDateTime.optional(),
     ...preferencePatchFields,
   })
@@ -150,7 +143,8 @@ const setRoutePreferencesZod = z.object({ ...preferencePatchFields }).strict();
 const zodByName = {
   get_city_pack: emptyZod,
   get_trip_context: emptyZod,
-  find_place_options: z.object({ query: querySchema }).strict(),
+  list_trips: emptyZod,
+  select_trip: z.object({ trip_id: idSchema("trip_id") }).strict(),
   find_route_options: findRouteOptionsZod,
   inspect_route_segment: z.object({ route_id: idSchema("route_id"), segment_id: idSchema("segment_id") }).strict(),
   check_route_constraints: z.object({ route_id: idSchema("route_id") }).strict(),
@@ -227,21 +221,19 @@ const preferencePatchProperties: Record<string, JsonSchema> = {
 const jsonByName: Record<ToolName, JsonSchema> = {
   get_city_pack: emptyJsonSchema,
   get_trip_context: emptyJsonSchema,
-  find_place_options: {
+  list_trips: emptyJsonSchema,
+  select_trip: {
     type: "object",
     properties: {
-      query: { type: "string", minLength: 1, maxLength: 80, description: "Free-text place name or partial name to search for, e.g. \"riverside\"." },
+      trip_id: idJsonSchema("Trip id to make active, from list_trips or get_city_pack."),
     },
-    required: ["query"],
+    required: ["trip_id"],
     additionalProperties: false,
   },
   find_route_options: {
     type: "object",
     properties: {
-      origin_id: idJsonSchema("Landmark id to start from. Defaults to the current trip origin if omitted."),
-      destination_id: idJsonSchema("Landmark id to travel to. Defaults to the current trip destination if omitted."),
-      depart_at: isoDateTimeJsonSchema("Departure time as an ISO 8601 timestamp with a UTC offset. Defaults to the current trip's departure time."),
-      arrival_deadline: isoDateTimeJsonSchema("Latest acceptable arrival time as an ISO 8601 timestamp with a UTC offset. Defaults to the current trip's deadline."),
+      arrival_deadline: isoDateTimeJsonSchema("Latest acceptable arrival time as an ISO 8601 timestamp with a UTC offset, for the active trip. Defaults to the trip's own deadline."),
       ...preferencePatchProperties,
     },
     additionalProperties: false,

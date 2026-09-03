@@ -56,19 +56,45 @@ describe("tool schema and metadata contracts", () => {
     }
   });
 
+  it("find_place_options no longer exists as a tool", () => {
+    expect(TOOL_NAMES).not.toContain("find_place_options");
+    expect((toolSchemas as Record<string, unknown>).find_place_options).toBeUndefined();
+    expect((toolMeta as Record<string, unknown>).find_place_options).toBeUndefined();
+  });
+
+  it("list_trips and select_trip exist with the correct trust and annotations", () => {
+    expect(TOOL_NAMES).toContain("list_trips");
+    expect(TOOL_NAMES).toContain("select_trip");
+    expect(toolMeta.list_trips.trust).toBe("read_only");
+    expect(toolMeta.list_trips.annotations.readOnlyHint).toBe(true);
+    expect(toolMeta.select_trip.trust).toBe("reversible");
+    expect(toolMeta.select_trip.annotations.readOnlyHint).toBe(false);
+  });
+
   it("validate rejects additional properties on get_trip_context", () => {
     const result = validate(toolSchemas.get_trip_context.zod, { extra: "nope" });
     expect(result.ok).toBe(false);
   });
 
   it("validate rejects delay_minutes 999 for simulate_route_disruption", () => {
-    const result = validate(toolSchemas.simulate_route_disruption.zod, { route_id: "route_bus_market", delay_minutes: 999 });
+    const result = validate(toolSchemas.simulate_route_disruption.zod, { route_id: "route_tram_4", delay_minutes: 999 });
     expect(result.ok).toBe(false);
   });
 
   it("validate accepts a partial constraint patch for find_route_options", () => {
     const result = validate(toolSchemas.find_route_options.zod, { max_fare: 8, avoid_stairs: true });
     expect(result.ok).toBe(true);
+  });
+
+  it("validate rejects origin_id, destination_id, and depart_at for find_route_options", () => {
+    expect(validate(toolSchemas.find_route_options.zod, { origin_id: "central_station" }).ok).toBe(false);
+    expect(validate(toolSchemas.find_route_options.zod, { destination_id: "riverside_center" }).ok).toBe(false);
+    expect(validate(toolSchemas.find_route_options.zod, { depart_at: "2026-09-04T07:00:00+02:00" }).ok).toBe(false);
+  });
+
+  it("validate accepts a trip_id for select_trip and rejects a missing one", () => {
+    expect(validate(toolSchemas.select_trip.zod, { trip_id: "trip_centraal_to_rai" }).ok).toBe(true);
+    expect(validate(toolSchemas.select_trip.zod, {}).ok).toBe(false);
   });
 });
 
@@ -79,18 +105,40 @@ function getTool(tools: ToolDefinition[], name: ToolName): ToolDefinition {
 }
 
 describe("buildRouteRoomTools integration", () => {
-  it("builds exactly the 21 documented tools", () => {
+  it("builds exactly the 22 documented tools", () => {
     const store = createPlannerStore(defaultCityPack);
     const tools = buildRouteRoomTools(store);
+    expect(TOOL_NAMES.length).toBe(22);
     expect(tools.map((tool) => tool.name).sort()).toEqual([...TOOL_NAMES].sort());
   });
 
-  it("get_trip_context reports the current primary route id", async () => {
+  it("get_trip_context reports the current primary route id, active trip id, and curated-snapshot data_kind", async () => {
     const store = createPlannerStore(defaultCityPack);
     const tools = buildRouteRoomTools(store);
     const result = await getTool(tools, "get_trip_context").execute({});
     expect(result.primary_route_id).toBe(store.getState().primaryRouteId);
+    expect(result.trip_id).toBe(store.getState().trip.tripId);
+    expect(result.data_kind).toBe("curated_snapshot");
     expect(result.changes_page_state).toBe(false);
+  });
+
+  it("list_trips reads the active city pack's trips without changing state", async () => {
+    const store = createPlannerStore(defaultCityPack);
+    const tools = buildRouteRoomTools(store);
+    const result = await getTool(tools, "list_trips").execute({});
+    expect(Array.isArray(result.trips)).toBe(true);
+    expect(result.active_trip_id).toBe(store.getState().trip.tripId);
+    expect(result.changes_page_state).toBe(false);
+  });
+
+  it("select_trip returns not_found for a bogus trip id and changes nothing", async () => {
+    const store = createPlannerStore(defaultCityPack);
+    const tools = buildRouteRoomTools(store);
+    const before = store.getState().trip.tripId;
+    const result = await getTool(tools, "select_trip").execute({ trip_id: "trip_does_not_exist" });
+    expect(result.status).toBe("not_found");
+    expect(result.changes_page_state).toBe(false);
+    expect(store.getState().trip.tripId).toBe(before);
   });
 
   it("create_draft_route_plan then save_route_plan requires human confirmation, and the agent cannot save without it", async () => {
@@ -103,6 +151,7 @@ describe("buildRouteRoomTools integration", () => {
       backup_route_id: backupRouteId,
     });
     expect(draftResult.status).toBe("draft_created");
+    expect(draftResult.trip_id).toBe(store.getState().trip.tripId);
     const draftId = draftResult.draft_id as string;
     expect(draftId).toBeTruthy();
 
@@ -128,20 +177,37 @@ describe("buildRouteRoomTools integration", () => {
     const store = createPlannerStore(defaultCityPack);
     const tools = buildRouteRoomTools(store);
     const result = await getTool(tools, "inspect_route_segment").execute({
-      route_id: "route_tram_walk",
-      segment_id: "seg_tram_walk_market_gate",
+      route_id: "route_metro_52",
+      segment_id: "seg_metro52_ride",
     });
     expect(result.status).toBeUndefined();
     const segment = result.segment as Record<string, unknown>;
-    expect(segment.segment_id).toBe("seg_tram_walk_market_gate");
+    expect(segment.segment_id).toBe("seg_metro52_ride");
     expect(segment.points).toBeUndefined();
+    expect(segment.path).toBeUndefined();
+  });
+
+  it("find_route_options results are labeled as a curated snapshot and never carry segment paths", async () => {
+    const store = createPlannerStore(defaultCityPack);
+    const tools = buildRouteRoomTools(store);
+    const result = await getTool(tools, "find_route_options").execute({ max_fare: 8 });
+    expect(result.data_kind).toBe("curated_snapshot");
+    expect(result.trip_id).toBe(store.getState().trip.tripId);
+    const routes = result.routes as Record<string, unknown>[];
+    for (const route of routes) {
+      expect(route.data_kind).toBe("curated_snapshot");
+      const segments = route.segments as Record<string, unknown>[];
+      for (const segment of segments) {
+        expect(segment.path).toBeUndefined();
+      }
+    }
   });
 
   it("invalid input never reaches the store and is reported as invalid_input", async () => {
     const store = createPlannerStore(defaultCityPack);
     const tools = buildRouteRoomTools(store);
     const before = store.getState().toolCallCount;
-    const result = await getTool(tools, "simulate_route_disruption").execute({ route_id: "route_bus_market", delay_minutes: 999 });
+    const result = await getTool(tools, "simulate_route_disruption").execute({ route_id: "route_tram_4", delay_minutes: 999 });
     expect(result.status).toBe("invalid_input");
     expect(result.changes_page_state).toBe(false);
     expect(store.getState().toolCallCount).toBe(before);

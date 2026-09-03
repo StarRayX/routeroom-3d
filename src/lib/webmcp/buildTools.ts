@@ -18,9 +18,10 @@ import type {
   PlannerStoreApi,
   ShowRouteInput,
 } from "../planner-store";
-import { findPlaceOptions, getLandmark } from "../route-engine";
+import { getLandmark } from "../route-engine";
 import type {
   ArrivalEstimate,
+  CityPack,
   ComparisonCriterion,
   Preferences,
   RankedRoute,
@@ -48,8 +49,8 @@ function mapArrival(arrival: ArrivalEstimate) {
   };
 }
 
-/** Never includes scene coordinates (segment.points). */
-function summarizeRankedRoute(entry: RankedRoute) {
+/** Never includes scene coordinates (segment.path). */
+function summarizeRankedRoute(entry: RankedRoute, city: CityPack) {
   const { route, rank, score, arrival, constraints, activeReports } = entry;
   return {
     route_id: route.id,
@@ -69,6 +70,8 @@ function summarizeRankedRoute(entry: RankedRoute) {
     accessibility: route.accessibility,
     confidence: route.confidence,
     evidence_updated_at: route.evidenceUpdatedAt,
+    data_kind: "curated_snapshot",
+    curated_at: city.snapshot.curatedAt,
     arrival: mapArrival(arrival),
     constraints_satisfied: constraints.satisfied,
     violations: constraints.violations.map((violation) => ({ constraint: violation.constraint, message: violation.message })),
@@ -89,7 +92,26 @@ function summarizeRankedRoute(entry: RankedRoute) {
       rain_exposure: segment.rainExposure,
       accessibility: segment.accessibility,
       line_name: segment.lineName ?? null,
+      ...(segment.operator ? { operator: segment.operator } : {}),
     })),
+  };
+}
+
+/** Provenance for the curated route data, never the geometry source. */
+function snapshotSummary(city: CityPack) {
+  return {
+    curated_at: city.snapshot.curatedAt,
+    sources: city.snapshot.sources,
+    notes: city.snapshot.notes,
+  };
+}
+
+/** Map geometry provenance (ADR 0005), separate from the curated route snapshot. */
+function geometrySourceSummary(city: CityPack) {
+  return {
+    attribution: city.geometry.source.attribution,
+    license: city.geometry.source.license,
+    exported_at: city.geometry.source.exportedAt,
   };
 }
 
@@ -160,6 +182,9 @@ export function buildRouteRoomTools(store: PlannerStoreApi): ToolDefinition[] {
         attribution: city.attribution,
         landmarks: city.landmarks.map((landmark) => landmarkSummary(landmark)),
         route_ids: city.routeOptions.map((route) => route.id),
+        trips: city.trips.map((trip) => ({ trip_id: trip.id, name: trip.name })),
+        snapshot: snapshotSummary(city),
+        geometry_source: geometrySourceSummary(city),
         changes_page_state: false,
       };
     }),
@@ -169,8 +194,12 @@ export function buildRouteRoomTools(store: PlannerStoreApi): ToolDefinition[] {
       state.noteToolCall("get_trip_context");
       const origin = getLandmark(state.city, state.trip.originId);
       const destination = getLandmark(state.city, state.trip.destinationId);
+      const activeTrip = state.city.trips.find((trip) => trip.id === state.trip.tripId);
       return {
         city_id: state.trip.cityId,
+        trip_id: state.trip.tripId,
+        trip_name: activeTrip?.name ?? state.trip.tripId,
+        available_trip_ids: state.city.trips.map((trip) => trip.id),
         origin: { landmark_id: state.trip.originId, label: origin?.name ?? state.trip.originId },
         destination: { landmark_id: state.trip.destinationId, label: destination?.name ?? state.trip.destinationId },
         depart_at: state.trip.departAt,
@@ -185,17 +214,36 @@ export function buildRouteRoomTools(store: PlannerStoreApi): ToolDefinition[] {
           ? { kind: state.pendingConfirmation.kind, target_id: state.pendingConfirmation.targetId, title: state.pendingConfirmation.title }
           : null,
         view_mode: state.viewMode,
+        data_kind: "curated_snapshot",
+        snapshot_curated_at: state.city.snapshot.curatedAt,
+        geometry_source: geometrySourceSummary(state.city),
         changes_page_state: false,
       };
     }),
 
-    makeTool("find_place_options", async (raw) => {
-      const parsed = validate(toolSchemas.find_place_options.zod, raw);
-      if (!parsed.ok) return { status: "invalid_input", message: parsed.message, changes_page_state: false };
+    makeTool("list_trips", async () => {
       const state = store.getState();
-      state.noteToolCall("find_place_options");
-      const matches = findPlaceOptions(state.city, parsed.value.query);
-      return { matches: matches.map((landmark) => landmarkSummary(landmark)), changes_page_state: false };
+      state.noteToolCall("list_trips");
+      const city = state.city;
+      return {
+        city_id: city.id,
+        trips: city.trips.map((trip) => {
+          const origin = getLandmark(city, trip.originId);
+          const destination = getLandmark(city, trip.destinationId);
+          return {
+            trip_id: trip.id,
+            name: trip.name,
+            description: trip.description,
+            origin: { landmark_id: trip.originId, label: origin?.name ?? trip.originId },
+            destination: { landmark_id: trip.destinationId, label: destination?.name ?? trip.destinationId },
+            depart_at: trip.departAt,
+            arrival_deadline: trip.arrivalDeadline,
+            route_option_ids: trip.routeOptionIds,
+          };
+        }),
+        active_trip_id: state.trip.tripId,
+        changes_page_state: false,
+      };
     }),
 
     makeTool("find_route_options", async (raw) => {
@@ -203,9 +251,6 @@ export function buildRouteRoomTools(store: PlannerStoreApi): ToolDefinition[] {
       if (!parsed.ok) return { status: "invalid_input", message: parsed.message, changes_page_state: false };
       const v = parsed.value;
       const input: FindRoutesInput = {
-        originId: v.origin_id,
-        destinationId: v.destination_id,
-        departAt: v.depart_at,
         arrivalDeadline: v.arrival_deadline,
         maxFare: v.max_fare,
         maxTransfers: v.max_transfers,
@@ -219,10 +264,29 @@ export function buildRouteRoomTools(store: PlannerStoreApi): ToolDefinition[] {
       const cleanInput = Object.fromEntries(Object.entries(input).filter(([, value]) => value !== undefined)) as FindRoutesInput;
       const ranked = store.getState().findRouteOptions(cleanInput, "agent");
       store.getState().noteToolCall("find_route_options");
+      const state = store.getState();
       return {
-        routes: ranked.map(summarizeRankedRoute),
+        trip_id: state.trip.tripId,
+        routes: ranked.map((entry) => summarizeRankedRoute(entry, state.city)),
         recommended_route_id: ranked[0]?.route.id ?? null,
+        data_kind: "curated_snapshot",
+        snapshot: snapshotSummary(state.city),
         note: "The visible route comparison on the page was updated.",
+        changes_page_state: true,
+      };
+    }),
+
+    makeTool("select_trip", async (raw) => {
+      const parsed = validate(toolSchemas.select_trip.zod, raw);
+      if (!parsed.ok) return { status: "invalid_input", message: parsed.message, changes_page_state: false };
+      const ok = store.getState().selectTrip(parsed.value.trip_id, "agent");
+      store.getState().noteToolCall("select_trip");
+      if (!ok) return { status: "not_found", trip_id: parsed.value.trip_id, changes_page_state: false };
+      const state = store.getState();
+      return {
+        status: "selected",
+        trip_id: state.trip.tripId,
+        recommended_route_id: state.ranked[0]?.route.id ?? null,
         changes_page_state: true,
       };
     }),
@@ -368,6 +432,7 @@ export function buildRouteRoomTools(store: PlannerStoreApi): ToolDefinition[] {
       return {
         plans: state.savedPlans.map((plan) => ({
           plan_id: plan.id,
+          trip_id: plan.tripId,
           status: plan.status,
           summary: plan.summary,
           primary_route_id: plan.primaryRouteId,
@@ -457,6 +522,7 @@ export function buildRouteRoomTools(store: PlannerStoreApi): ToolDefinition[] {
       return {
         status: "draft_created",
         draft_id: draft.id,
+        trip_id: draft.tripId,
         summary: draft.summary,
         primary_route_id: draft.primaryRouteId,
         backup_route_id: draft.backupRouteId ?? null,

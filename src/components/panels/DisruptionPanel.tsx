@@ -33,11 +33,11 @@ export function DisruptionPanel() {
   const route = ranked.find((entry) => entry.route.id === routeId)?.route;
 
   return (
-    <section className="card panel panel-full" aria-labelledby="disruption-heading">
+    <div className="drawer-tab-panel">
       <div className="panel-heading compact">
         <div>
           <p className="eyebrow">DISRUPTION SIMULATOR</p>
-          <h2 id="disruption-heading">Stress-test a route</h2>
+          <h2>Stress-test a route</h2>
         </div>
       </div>
 
@@ -116,6 +116,6 @@ export function DisruptionPanel() {
           )}
         </div>
       )}
-    </section>
+    </div>
   );
 }

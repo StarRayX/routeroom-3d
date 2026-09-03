@@ -69,11 +69,11 @@ export function ReportsPanel({ prefillSegmentId }: ReportsPanelProps) {
   };
 
   return (
-    <section className="card panel" aria-labelledby="reports-heading">
+    <div className="drawer-tab-panel">
       <div className="panel-heading compact">
         <div>
           <p className="eyebrow">SERVICE REPORTS</p>
-          <h2 id="reports-heading">Recent observations</h2>
+          <h2>Recent observations</h2>
         </div>
       </div>
 
@@ -84,7 +84,8 @@ export function ReportsPanel({ prefillSegmentId }: ReportsPanelProps) {
             <span className="chip">{report.category.replace("_", " ")}</span>
             <p>{report.text}</p>
             <div className="report-list-meta">
-              <span className={`badge ${report.source === "user" ? "badge-amber" : "badge-teal"}`}>{report.source}</span>
+              <span className={`badge ${report.source === "user" ? "badge-amber" : "badge-slate"}`}>{report.source}</span>
+              <span className="chip">{report.confidence} confidence</span>
               <span className="route-card-freshness">
                 Observed {formatRelative(report.observedAt, new Date(now))} · Expires {formatRelative(report.expiresAt, new Date(now))}
               </span>
@@ -165,6 +166,6 @@ export function ReportsPanel({ prefillSegmentId }: ReportsPanelProps) {
           </ul>
         </div>
       )}
-    </section>
+    </div>
   );
 }

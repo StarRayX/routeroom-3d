@@ -2,7 +2,7 @@
 
 import type { ChangeEvent } from "react";
 import { usePlanner } from "@/lib/planner-context";
-import { cityPacks, getCityPack } from "@/lib/city-packs";
+import { formatDateOnly } from "./formatDateOnly";
 import type { ViewMode, WebMcpStatus } from "@/lib/types";
 
 type TopBarProps = {
@@ -18,13 +18,16 @@ function statusText(status: WebMcpStatus, registeredCount: number): string {
 
 export function TopBar({ status, registeredCount }: TopBarProps) {
   const city = usePlanner((s) => s.city);
+  const tripId = usePlanner((s) => s.trip.tripId);
   const viewMode = usePlanner((s) => s.viewMode);
-  const loadCityPack = usePlanner((s) => s.loadCityPack);
+  const selectTrip = usePlanner((s) => s.selectTrip);
   const setViewMode = usePlanner((s) => s.setViewMode);
 
-  const handleCityChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const next = getCityPack(event.target.value);
-    if (next) loadCityPack(next);
+  const activeTrip = city.trips.find((trip) => trip.id === tripId);
+  const hasMultipleTrips = city.trips.length > 1;
+
+  const handleTripChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    selectTrip(event.target.value, "human");
   };
 
   const handleViewMode = (mode: ViewMode) => {
@@ -44,16 +47,24 @@ export function TopBar({ status, registeredCount }: TopBarProps) {
       </div>
 
       <div className="topbar-controls">
-        <label className="field-inline">
-          <span className="sr-only">City pack</span>
-          <select value={city.id} onChange={handleCityChange} aria-label="City pack">
-            {cityPacks.map((pack) => (
-              <option key={pack.id} value={pack.id}>
-                {pack.name} · {pack.district}
-              </option>
-            ))}
-          </select>
-        </label>
+        {hasMultipleTrips ? (
+          <label className="field-inline">
+            <span className="sr-only">Trip</span>
+            <select value={tripId} onChange={handleTripChange} aria-label="Trip">
+              {city.trips.map((trip) => (
+                <option key={trip.id} value={trip.id}>
+                  {trip.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : (
+          <span className="trip-name-text">{activeTrip?.name ?? city.name}</span>
+        )}
+
+        <div className="pill" title={city.snapshot.sources.join(", ")}>
+          Curated snapshot · {formatDateOnly(city.snapshot.curatedAt)}
+        </div>
 
         <div className={`pill pill-status-${status}`}>
           <span className="pill-dot" aria-hidden="true" />
