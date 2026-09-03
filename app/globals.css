@@ -72,6 +72,13 @@ h3 { font-size: 13px; line-height: 1.35; }
 .map-workspace { position: relative; min-width: 0; min-height: 0; overflow: hidden; background: var(--canvas); }
 .scene-column { position: absolute; inset: 0; }
 .scene-column > * { width: 100%; height: 100%; }
+.scene-layer { position: absolute; inset: 0; visibility: hidden; pointer-events: none; }
+.scene-layer.is-active { visibility: visible; pointer-events: auto; }
+.mapbox-gate-shell { position: relative; width: 100%; height: 100%; }
+.mapbox-gate { position: absolute; z-index: 3; top: 14px; left: 14px; display: flex; align-items: center; gap: 10px; padding: 5px 7px 5px 5px; border: 1px solid var(--line-dark); border-radius: 8px; background: color-mix(in srgb, var(--surface) 94%, transparent); box-shadow: var(--shadow); }
+.mapbox-gate button { height: 32px; display: inline-flex; align-items: center; gap: 7px; padding: 0 11px; border: 0; border-radius: 6px; color: var(--surface); background: var(--ink); font-size: 12px; font-weight: 650; }
+.mapbox-gate button:hover { background: var(--ink-2); }
+.mapbox-gate span { color: var(--muted); font-size: 11px; }
 .scene-column .rs-shell, .scene-column .rs-map2d, .scene-column .rs-mapbox, .scene-column .rs-mapbox-fallback { min-height: 0; height: 100%; }
 .inspection-launcher { position: absolute; z-index: 4; top: 14px; right: 14px; display: flex; border: 1px solid var(--line-dark); border-radius: 8px; overflow: hidden; background: var(--surface); box-shadow: var(--shadow); }
 .inspection-launcher button { height: 34px; display: inline-flex; align-items: center; gap: 6px; padding: 0 9px; border: 0; border-right: 1px solid var(--line); color: var(--ink-2); background: transparent; font-size: 12px; font-weight: 600; }
@@ -314,6 +321,8 @@ h3 { font-size: 13px; line-height: 1.35; }
   .segmented button { width: 34px; padding: 0; font-size: 0; }
   .map-workspace { height: 48dvh; min-height: 360px; }
   .inspection-launcher { top: 8px; right: 8px; }
+  .mapbox-gate { top: 8px; left: 8px; }
+  .mapbox-gate span { display: none; }
   .inspection-launcher button { width: 34px; padding: 0; justify-content: center; }
   .inspection-launcher button span { display: none; }
   .route-sidebar { min-height: 52dvh; }

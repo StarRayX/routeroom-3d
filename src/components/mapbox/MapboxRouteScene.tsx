@@ -34,6 +34,42 @@ const ROUTE_LINE_LAYER_IDS: readonly string[] = [
   LAYER_IDS.routeDisrupted,
 ];
 const POINT_LAYER_IDS: readonly string[] = [LAYER_IDS.points, `${LAYER_IDS.points}-dot`];
+const MAP_LOAD_GUARD_KEY = "routeroom:mapbox-load-guard";
+
+type MapLoadAllowance = "checking" | "allowed" | "blocked";
+
+function browserMonthlyMapLoadCap(): number {
+  const configured = Number(process.env.NEXT_PUBLIC_MAPBOX_BROWSER_MONTHLY_LOAD_CAP ?? "100");
+  if (!Number.isFinite(configured)) return 100;
+  return Math.min(1000, Math.max(1, Math.floor(configured)));
+}
+
+/**
+ * A best-effort browser-side brake for accidental refresh/remount loops. It
+ * is deliberately described as a guard, not an account spending cap: local
+ * storage can be cleared and each browser has its own counter.
+ */
+function claimBrowserMapLoad(): boolean {
+  try {
+    const pageKey = `${MAP_LOAD_GUARD_KEY}:${Math.round(performance.timeOrigin)}`;
+    if (sessionStorage.getItem(pageKey) === "claimed") return true;
+
+    const month = new Date().toISOString().slice(0, 7);
+    const parsed = JSON.parse(localStorage.getItem(MAP_LOAD_GUARD_KEY) ?? "null") as
+      | { month?: string; count?: number }
+      | null;
+    const count = parsed?.month === month && Number.isFinite(parsed.count) ? Number(parsed.count) : 0;
+    if (count >= browserMonthlyMapLoadCap()) return false;
+
+    localStorage.setItem(MAP_LOAD_GUARD_KEY, JSON.stringify({ month, count: count + 1 }));
+    sessionStorage.setItem(pageKey, "claimed");
+    return true;
+  } catch {
+    // Storage may be disabled. The URL-restricted token and provider-side
+    // statistics remain the real controls, so the map stays usable.
+    return true;
+  }
+}
 
 /**
  * `GeoJSONFeature` (mapbox-gl's type for `event.features[n]`) declares only
@@ -97,11 +133,17 @@ export function MapboxRouteScene(props: RouteSceneProps) {
 
   const tokenResolution = useMemo(() => getMapboxTokenFromEnv(), []);
   const [webglAvailable, setWebglAvailable] = useState<boolean | null>(null);
+  const [loadAllowance, setLoadAllowance] = useState<MapLoadAllowance>("checking");
   const notifiedUnavailableRef = useRef(false);
 
   useEffect(() => {
     setWebglAvailable(detectWebGl());
   }, []);
+
+  useEffect(() => {
+    if (tokenResolution.status !== "ok" || webglAvailable !== true) return;
+    setLoadAllowance(claimBrowserMapLoad() ? "allowed" : "blocked");
+  }, [tokenResolution, webglAvailable]);
 
   useEffect(() => {
     if (webglAvailable === false && !notifiedUnavailableRef.current) {
@@ -118,7 +160,7 @@ export function MapboxRouteScene(props: RouteSceneProps) {
   const propsRef = useRef(props);
   propsRef.current = props;
 
-  const canRenderMap = tokenResolution.status === "ok" && webglAvailable === true;
+  const canRenderMap = tokenResolution.status === "ok" && webglAvailable === true && loadAllowance === "allowed";
 
   useEffect(() => {
     if (!canRenderMap || !containerRef.current || mapRef.current) return undefined;
@@ -349,6 +391,16 @@ export function MapboxRouteScene(props: RouteSceneProps) {
   }
   if (webglAvailable === false) {
     return <FallbackScene {...props} notice="3D map unavailable in this browser." />;
+  }
+  if (loadAllowance === "blocked") {
+    return <FallbackScene {...props} notice="3D preview paused by this browser's monthly safety guard. The 2D route view remains available." />;
+  }
+  if (loadAllowance === "checking") {
+    return (
+      <div className="rs-mapbox" aria-label={`${city.name} route scene`}>
+        <div className="rs-loading">Loading map…</div>
+      </div>
+    );
   }
 
   return (

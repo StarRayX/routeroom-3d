@@ -16,7 +16,7 @@ RouteRoom is a shared route-decision workspace. The Amsterdam demo compares thre
 
 RouteRoom exposes 22 typed tools on the top-level planner page with `document.modelContext.registerTool`. Tool handlers are thin, validated wrappers around the same Zustand planner store and deterministic route engine used by the human UI. Therefore an agent action and a human click update the same route cards, map overlays, camera focus, draft state, and activity log. Stable trip, route, segment, and draft IDs make the result inspectable.
 
-Without WebMCP, an agent would have to guess UI controls or describe proposed changes in chat. With WebMCP, it can operate on the site’s declared capabilities and return structured results while the person watches the same state change. **Verification caveat:** repository evidence confirms the registration code and the in-page `window.__routeroomTools` console have been exercised; discovery and successful calls in an actual WebMCP-capable browser are still **not verified** as of 2026-09-03. Do not describe that browser-level verification as complete until it is tested.
+Without WebMCP, an agent would have to guess UI controls or describe proposed changes in chat. With WebMCP, it can operate on the site’s declared capabilities and return structured results while the person watches the same state change. The ChatGPT/Codex in-app browser discovered all 22 tools automatically on page load on 2026-09-04, confirming the registration shape, schemas, and annotations. **Verification caveat:** an agent-driven invocation through that browser is still not verified. Do not claim the full browser-agent loop until one tool call has visibly changed the page.
 
 ## Human–agent collaboration loop
 
@@ -78,7 +78,8 @@ WebMCP is most valuable when the agent is manipulating meaningful application st
 ## Requirements checklist
 
 - [ ] Working public live URL that judges can open in ChatGPT’s in-app browser or Chrome with WebMCP enabled — **missing / needs verification**.
-- [ ] Agent discovers and successfully calls the declared tools in that browser — **not verified; do not claim**.
+- [x] Browser discovers all 22 declared tools on initial page load — **verified in the ChatGPT/Codex in-app browser on 2026-09-04**.
+- [ ] Agent successfully calls a declared tool through that browser and visibly changes the page — **not verified; do not claim**.
 - [x] Text explains WebMCP fit, UX benefit, human/agent collaboration, and implementation.
 - [ ] Public repository URL — **insert final URL**.
 - [x] Repository contains source, instructions, and an open-source license (MIT).

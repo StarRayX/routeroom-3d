@@ -153,6 +153,15 @@ the product does not break, but the 3D view stops appearing until usage
 resets or billing is enabled. The fallback described above is what covers
 a quota failure, not a manual intervention.
 
+Mapbox does not provide a configurable hard spending cap. RouteRoom therefore
+adds two narrower safeguards: the public token must be URL-restricted, and
+`NEXT_PUBLIC_MAPBOX_BROWSER_MONTHLY_LOAD_CAP` limits map starts in one browser
+(default `100`) to reduce accidental refresh/remount loops. This browser-side
+guard is not an account-wide billing control: storage can be cleared and each
+browser has its own counter. If zero overage risk is mandatory, disable or
+revoke the token after judging, or replace Mapbox through the existing provider
+boundary with a self-hosted/keyless renderer.
+
 ## Manual verification checklist
 
 Run through this after any change that touches the map integration, and

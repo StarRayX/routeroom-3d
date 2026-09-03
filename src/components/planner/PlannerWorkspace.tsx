@@ -2,7 +2,7 @@
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import gsap from "gsap";
-import { ArrowLeft, Chart, ChatRoundDots, Path, RotateLeft, Warning } from "reicon-react";
+import { ArrowLeft, Chart, ChatRoundDots, Layers, Path, RotateLeft, Warning } from "reicon-react";
 import { usePlanner } from "@/lib/planner-context";
 import { useWebMcpTools } from "@/lib/webmcp/useWebMcpTools";
 import { RouteScene, RouteMap2D } from "@/components/route-scene";
@@ -45,11 +45,14 @@ export function PlannerWorkspace() {
   const [insightTab, setInsightTab] = useState<InsightTab>("why");
   const [sidebarMode, setSidebarMode] = useState<"routes" | "preferences" | "activity" | "insight">("routes");
   const [debugEnabled, setDebugEnabled] = useState(false);
+  const [mapboxRequested, setMapboxRequested] = useState(false);
   const stageRef = useRef<HTMLElement>(null);
   const sidebarContentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setDebugEnabled(new URLSearchParams(window.location.search).get("debug") === "1");
+    const params = new URLSearchParams(window.location.search);
+    setDebugEnabled(params.get("debug") === "1");
+    setMapboxRequested(params.get("auto3d") === "1");
   }, []);
 
   useLayoutEffect(() => {
@@ -191,7 +194,26 @@ export function PlannerWorkspace() {
         </aside>
 
         <section className="map-workspace" aria-label="Route map">
-          <div className="scene-column">{viewMode === "list" ? <RouteMap2D {...sceneProps} /> : <RouteScene {...sceneProps} />}</div>
+          <div className="scene-column">
+            <div className={`scene-layer ${viewMode === "3d" ? "is-active" : ""}`} aria-hidden={viewMode !== "3d"}>
+              {mapboxRequested ? (
+                <RouteScene {...sceneProps} />
+              ) : (
+                <div className="mapbox-gate-shell">
+                  <RouteMap2D {...sceneProps} />
+                  <div className="mapbox-gate">
+                    <button type="button" onClick={() => setMapboxRequested(true)}>
+                      <Layers size={16} weight="Outline" aria-hidden="true" /> Open 3D map
+                    </button>
+                    <span>Starts one Mapbox map load</span>
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className={`scene-layer ${viewMode === "list" ? "is-active" : ""}`} aria-hidden={viewMode !== "list"}>
+              <RouteMap2D {...sceneProps} />
+            </div>
+          </div>
           <div className="inspection-launcher" aria-label="Route inspection tools">
             <button type="button" onClick={resetMapView} title="Reset map view"><RotateLeft size={17} weight="Outline" /><span>Reset</span></button>
             <button type="button" onClick={() => openInsight("why")}><Chart size={17} weight="Outline" /><span>Why</span></button>
